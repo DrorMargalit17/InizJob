@@ -2,9 +2,7 @@ package com.example.inizjob;
 
 import java.io.Serializable;
 
-// "implements Serializable" allows us to pass the whole Job object between fragments
 public class Job implements Serializable {
-    // Page 1: Business Details
     public String company;
     public String location;
     public String exactAddress;
@@ -12,7 +10,6 @@ public class Job implements Serializable {
     public String logoUrl;
     public String imageUrl;
 
-    // Page 2: Job Requirements
     public String title;
     public String jobDescription;
     public int minAge;
@@ -20,7 +17,6 @@ public class Job implements Serializable {
     public String hoursAndDays;
     public boolean flexibilityCommitment;
 
-    // Page 3: Salary & Conditions
     public double salary;
     public String conditions;
     public String contactName;
@@ -28,15 +24,17 @@ public class Job implements Serializable {
     public String contactPhone;
     public String businessId;
 
-    // Empty constructor - mandatory for Firebase
+    // מזהים חדשים לניהול המשרה
+    public String ownerId;
+    public String jobId;
+
     public Job() {}
 
-    // Full constructor
     public Job(String company, String location, String exactAddress, String businessDescription,
                String title, String jobDescription, int minAge, String prerequisites,
                String hoursAndDays, boolean flexibilityCommitment, double salary,
                String conditions, String contactName, String contactRole,
-               String contactPhone, String businessId) {
+               String contactPhone, String businessId, String ownerId, String jobId) {
         this.company = company;
         this.location = location;
         this.exactAddress = exactAddress;
@@ -53,5 +51,7 @@ public class Job implements Serializable {
         this.contactRole = contactRole;
         this.contactPhone = contactPhone;
         this.businessId = businessId;
+        this.ownerId = ownerId;
+        this.jobId = jobId;
     }
 }

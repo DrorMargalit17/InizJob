@@ -20,6 +20,7 @@ import androidx.fragment.app.Fragment;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -40,13 +41,25 @@ public class AddJobFragment extends Fragment {
     // Page 3 Inputs
     private TextInputEditText etSalary, etConditions, etContactName, etContactRole, etContactPhone, etBusinessId;
 
-    // Buttons
+    // Navigation Buttons
     private Button btnNext1, btnNext2, btnBack2, btnBack3, btnSaveJob;
 
     private DatabaseReference mDatabase;
 
+    // Variable to hold the job if we are in Edit Mode
+    private Job jobToEdit = null;
+
     public AddJobFragment() {
         // Required empty public constructor
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        // Check if a job was passed for editing
+        if (getArguments() != null && getArguments().containsKey("EDIT_JOB")) {
+            jobToEdit = (Job) getArguments().getSerializable("EDIT_JOB");
+        }
     }
 
     @Nullable
@@ -94,6 +107,9 @@ public class AddJobFragment extends Fragment {
         setupCityDropdown();
         setupNavigationButtons();
 
+        // If editing, fill the fields with existing data
+        prefillDataIfEditing();
+
         return view;
     }
 
@@ -108,6 +124,33 @@ public class AddJobFragment extends Fragment {
         etLocation.setAdapter(adapter);
     }
 
+    // Method to pre-fill data when opening in Edit mode
+    private void prefillDataIfEditing() {
+        if (jobToEdit != null) {
+            tvWizardTitle.setText("עריכת משרה: שלב 1 מתוך 3");
+            btnSaveJob.setText("שמור שינויים");
+
+            etCompany.setText(jobToEdit.company);
+            etLocation.setText(jobToEdit.location, false); // false prevents dropdown from opening
+            etExactAddress.setText(jobToEdit.exactAddress);
+            etBusinessDesc.setText(jobToEdit.businessDescription);
+
+            etTitle.setText(jobToEdit.title);
+            etJobDesc.setText(jobToEdit.jobDescription);
+            etMinAge.setText(String.valueOf(jobToEdit.minAge));
+            etPrerequisites.setText(jobToEdit.prerequisites);
+            etHours.setText(jobToEdit.hoursAndDays);
+            cbFlexibility.setChecked(jobToEdit.flexibilityCommitment);
+
+            etSalary.setText(String.valueOf(jobToEdit.salary));
+            etConditions.setText(jobToEdit.conditions);
+            etContactName.setText(jobToEdit.contactName);
+            etContactRole.setText(jobToEdit.contactRole);
+            etContactPhone.setText(jobToEdit.contactPhone);
+            etBusinessId.setText(jobToEdit.businessId);
+        }
+    }
+
     private void setupNavigationButtons() {
         btnNext1.setOnClickListener(v -> {
             if (TextUtils.isEmpty(etCompany.getText().toString()) || TextUtils.isEmpty(etLocation.getText().toString())) {
@@ -116,13 +159,13 @@ public class AddJobFragment extends Fragment {
             }
             page1.setVisibility(View.GONE);
             page2.setVisibility(View.VISIBLE);
-            tvWizardTitle.setText("שלב 2 מתוך 3: תיאור ודרישות");
+            tvWizardTitle.setText(jobToEdit != null ? "עריכת משרה: שלב 2 מתוך 3" : "שלב 2 מתוך 3: תיאור ודרישות");
         });
 
         btnBack2.setOnClickListener(v -> {
             page2.setVisibility(View.GONE);
             page1.setVisibility(View.VISIBLE);
-            tvWizardTitle.setText("שלב 1 מתוך 3: פרטי העסק");
+            tvWizardTitle.setText(jobToEdit != null ? "עריכת משרה: שלב 1 מתוך 3" : "שלב 1 מתוך 3: פרטי העסק");
         });
 
         btnNext2.setOnClickListener(v -> {
@@ -132,13 +175,13 @@ public class AddJobFragment extends Fragment {
             }
             page2.setVisibility(View.GONE);
             page3.setVisibility(View.VISIBLE);
-            tvWizardTitle.setText("שלב 3 מתוך 3: שכר ותנאים");
+            tvWizardTitle.setText(jobToEdit != null ? "עריכת משרה: שלב 3 מתוך 3" : "שלב 3 מתוך 3: שכר ותנאים");
         });
 
         btnBack3.setOnClickListener(v -> {
             page3.setVisibility(View.GONE);
             page2.setVisibility(View.VISIBLE);
-            tvWizardTitle.setText("שלב 2 מתוך 3: תיאור ודרישות");
+            tvWizardTitle.setText(jobToEdit != null ? "עריכת משרה: שלב 2 מתוך 3" : "שלב 2 מתוך 3: תיאור ודרישות");
         });
 
         btnSaveJob.setOnClickListener(v -> validateAndSaveJob());
@@ -186,18 +229,28 @@ public class AddJobFragment extends Fragment {
         String cPhone = etContactPhone.getText().toString().trim();
         String busId = etBusinessId.getText().toString().trim();
 
-        String jobId = mDatabase.push().getKey();
-        Job newJob = new Job(company, location, address, busDesc, title, jobDesc, age, prereq, hours, isFlexible, salary, cond, cName, cRole, cPhone, busId);
+        // Check if updating existing or creating new
+        String jobId = (jobToEdit != null) ? jobToEdit.jobId : mDatabase.push().getKey();
+
+        // Keep the original ownerId if editing, otherwise assign current user
+        String ownerId = (jobToEdit != null) ? jobToEdit.ownerId : "";
+        if (ownerId.isEmpty() && FirebaseAuth.getInstance().getCurrentUser() != null) {
+            ownerId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        }
+
+        Job newJob = new Job(company, location, address, busDesc, title, jobDesc, age, prereq, hours, isFlexible, salary, cond, cName, cRole, cPhone, busId, ownerId, jobId);
 
         if (jobId != null) {
             mDatabase.child(jobId).setValue(newJob).addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
-                    Toast.makeText(getContext(), "המשרה פורסמה בהצלחה!", Toast.LENGTH_LONG).show();
+                    String message = (jobToEdit != null) ? "המשרה עודכנה בהצלחה!" : "המשרה פורסמה בהצלחה!";
+                    Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+
                     if (getActivity() != null) {
                         getActivity().getSupportFragmentManager().popBackStack();
                     }
                 } else {
-                    Toast.makeText(getContext(), "שגיאה בפרסום המשרה", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "שגיאה בשמירת המשרה", Toast.LENGTH_SHORT).show();
                 }
             });
         }
