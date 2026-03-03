@@ -12,15 +12,26 @@ import java.util.List;
 public class JobAdapter extends RecyclerView.Adapter<JobAdapter.JobViewHolder> {
 
     private List<Job> jobList;
+    private OnItemClickListener listener;
 
-    public JobAdapter(List<Job> jobList) {
+    public interface OnItemClickListener {
+        void onItemClick(Job job);
+    }
+
+    public JobAdapter(List<Job> jobList, OnItemClickListener listener) {
         this.jobList = jobList;
+        this.listener = listener;
+    }
+
+    // Method to update the list when searching
+    public void filterList(List<Job> filteredList) {
+        this.jobList = filteredList;
+        notifyDataSetChanged();
     }
 
     @NonNull
     @Override
     public JobViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // כאן אנחנו מחברים את קובץ ה-XML של הכרטיס הבודד (job_item)
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.job_item, parent, false);
         return new JobViewHolder(view);
     }
@@ -31,10 +42,17 @@ public class JobAdapter extends RecyclerView.Adapter<JobAdapter.JobViewHolder> {
         holder.tvJobTitle.setText(job.title);
         holder.tvCompany.setText(job.company);
         holder.tvLocation.setText(job.location);
-        holder.tvSalary.setText(job.salary);
 
-        // כאן בהמשך נוסיף טעינת תמונה עם ספריית Glide
-        // holder.imgJob.setImageResource(R.drawable.sample_job);
+        holder.tvSalary.setText(String.valueOf(job.salary) + " ₪ / שעה");
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (listener != null) {
+                    listener.onItemClick(job);
+                }
+            }
+        });
     }
 
     @Override

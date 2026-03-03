@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_gray"
+    android:layoutDirection="rtl">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/bottomBar"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <ImageView
+                android:id="@+id/btnClose"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_gravity="start"
+                android:layout_marginBottom="8dp"
+                android:src="@android:drawable/ic_menu_close_clear_cancel"
+                app:tint="@color/black" />
+
+            <TextView
+                android:id="@+id/tvDetailTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="כותרת משרה"
+                android:textColor="@color/brand_purple"
+                android:textSize="26sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvDetailCompany"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="שם העסק"
+                android:textColor="#424242"
+                android:textSize="18sp"
+                android:layout_marginTop="4dp" />
+
+            <TextView
+                android:id="@+id/tvDetailLocation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="מיקום וכתובת מדויקת"
+                android:textColor="#757575"
+                android:textSize="16sp"
+                android:layout_marginTop="4dp" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#E0E0E0"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="על המשרה"
+                android:textColor="@color/black"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:id="@+id/tvDetailDesc"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="תיאור המשרה כאן..."
+                android:textColor="#424242"
+                android:textSize="16sp"
+                android:lineSpacingExtra="4dp"
+                android:layout_marginBottom="24dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="דרישות המשרה"
+                android:textColor="@color/black"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:id="@+id/tvDetailPrereq"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="דרישות קדם..."
+                android:textColor="#424242"
+                android:textSize="16sp"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:id="@+id/tvDetailAge"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="גיל מינימלי: 16"
+                android:textColor="#424242"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="24dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="שעות וימים"
+                android:textColor="@color/black"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:id="@+id/tvDetailHours"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="תיאור שעות..."
+                android:textColor="#424242"
+                android:textSize="16sp"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:id="@+id/tvDetailFlex"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="✅ בעל העסק מתחייב לגמישות בשעות בית ספר ומבחנים"
+                android:textColor="#2E7D32"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="24dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="שכר ותנאים"
+                android:textColor="@color/black"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:id="@+id/tvDetailSalary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="שכר: 45 ₪ / שעה"
+                android:textColor="#1A237E"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:id="@+id/tvDetailConditions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="תנאים נלווים..."
+                android:textColor="#424242"
+                android:textSize="16sp"
+                android:layout_marginBottom="30dp" />
+
+        </LinearLayout>
+    </ScrollView>
+
+    <LinearLayout
+        android:id="@+id/bottomBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@color/white"
+        android:elevation="10dp"
+        android:padding="16dp"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_gravity="center_vertical">
+            <TextView
+                android:id="@+id/tvDetailContactName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="איש קשר: דוד (מנהל משמרת)"
+                android:textSize="14sp"
+                android:textColor="#424242"/>
+        </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnContact"
+            android:layout_width="wrap_content"
+            android:layout_height="55dp"
+            android:text="צור קשר"
+            android:textSize="16sp"
+            app:backgroundTint="#2E7D32"
+            app:cornerRadius="25dp"
+            app:icon="@android:drawable/ic_menu_call"
+            app:iconGravity="textStart"/>
+    </LinearLayout>
+</RelativeLayout>
