@@ -12,13 +12,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class homeFragment extends Fragment {
+public class HomeFragment extends Fragment {
 
     private RecyclerView rvHorizontalJobs;
     private JobAdapter jobAdapter;
     private List<Job> jobList;
 
-    public homeFragment() {
+    public HomeFragment() {
         // Required empty public constructor
     }
 

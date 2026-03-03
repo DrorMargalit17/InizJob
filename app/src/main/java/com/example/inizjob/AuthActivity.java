@@ -16,40 +16,40 @@ public class AuthActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_auth);
 
-        // 1. חיבור לרכיבים
+        // 1. Connect to UI components
         btnLoginTab = findViewById(R.id.tabLogin);
         btnRegisterTab = findViewById(R.id.tabRegister);
         lineLogin = findViewById(R.id.indicatorLogin);
         lineRegister = findViewById(R.id.indicatorRegister);
 
-        // 2. טעינה ראשונית - התחברות
+        // 2. Initial load - show Login screen by default
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragmentContainer, new LoginFragment())
                 .commit();
 
-        // 3. לחיצה על "התחברות"
+        // 3. Click listener for "Login" tab
         btnLoginTab.setOnClickListener(v -> {
-            // עיצוב
+            // Update UI colors to show Login is selected
             btnLoginTab.setTextColor(getResources().getColor(R.color.brand_purple));
             lineLogin.setBackgroundColor(getResources().getColor(R.color.brand_purple));
             btnRegisterTab.setTextColor(getResources().getColor(R.color.text_hint));
             lineRegister.setBackgroundColor(Color.TRANSPARENT);
 
-            // טעינת מסך
+            // Load LoginFragment
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragmentContainer, new LoginFragment())
                     .commit();
         });
 
-        // 4. לחיצה על "הרשמה"
+        // 4. Click listener for "Register" tab
         btnRegisterTab.setOnClickListener(v -> {
-            // עיצוב
+            // Update UI colors to show Register is selected
             btnRegisterTab.setTextColor(getResources().getColor(R.color.brand_purple));
             lineRegister.setBackgroundColor(getResources().getColor(R.color.brand_purple));
             btnLoginTab.setTextColor(getResources().getColor(R.color.text_hint));
             lineLogin.setBackgroundColor(Color.TRANSPARENT);
 
-            // טעינת מסך
+            // Load RegisterFragment
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragmentContainer, new RegisterFragment())
                     .commit();

@@ -1,18 +1,18 @@
 package com.example.inizjob;
 
 public class User {
-    // משתנים ציבוריים כדי שפיירבייס יוכל לקרוא ולכתוב אותם בקלות
+    // Public variables so Firebase can easily read and write them
     public String fullName;
     public String email;
     public String phone;
-    public String type; // "נוער" או "עסק"
-    public String businessCode; // רלוונטי רק לעסק
+    public String type; // "נוער" (Youth) or "עסק" (Business)
+    public String businessCode; // Relevant only for business
 
-    // בנאי ריק - חובה בשביל פיירבייס! [cite: 839]
+    // Empty constructor - mandatory for Firebase!
     public User() {
     }
 
-    // בנאי מלא לנוחות שלנו [cite: 841]
+    // Full constructor for our convenience
     public User(String fullName, String email, String phone, String type, String businessCode) {
         this.fullName = fullName;
         this.email = email;
