@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "792401877321",
+    "project_id": "inizjob4586",
+    "storage_bucket": "inizjob4586.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:792401877321:android:790babed9105635757a298",
+        "android_client_info": {
+          "package_name": "com.example.inizjob"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCMh3TErWIMUeaQz4X3xTDAJpxuefEL9Zc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

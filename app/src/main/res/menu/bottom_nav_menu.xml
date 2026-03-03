@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_home"
+        android:icon="@drawable/ic_home"
+        android:title="בית" />
+    <item
+        android:id="@+id/nav_jobs"
+        android:icon="@drawable/ic_work"
+        android:title="עבודות מזדמנות" />
+    <item
+        android:id="@+id/nav_cv"
+        android:icon="@drawable/ic_description"
+        android:title="קורות חיים" />
+    <item
+        android:id="@+id/nav_profile"
+        android:icon="@drawable/ic_person"
+        android:title="פרופיל" />
+</menu>
