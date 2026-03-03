@@ -48,7 +48,7 @@ public class LoginFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_login, container, false);
 
         mAuth = FirebaseAuth.getInstance();
-        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase = FirebaseDatabase.getInstance("https://inizjob4586-default-rtdb.firebaseio.com/").getReference();
 
         toggleYouth = view.findViewById(R.id.toggleYouth);
         toggleBusiness = view.findViewById(R.id.toggleBusiness);

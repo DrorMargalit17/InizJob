@@ -51,7 +51,7 @@ public class RegisterFragment extends Fragment {
         mAuth = FirebaseAuth.getInstance();
 
         // אתחול Firebase Database
-        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase = FirebaseDatabase.getInstance("https://inizjob4586-default-rtdb.firebaseio.com/").getReference();
 
         // 2. חיבור לרכיבים ב-XML
         toggleYouth = view.findViewById(R.id.regToggleYouth);
