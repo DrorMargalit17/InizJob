@@ -50,6 +50,7 @@ public class AuthActivity extends AppCompatActivity {
         lineRegister.setBackgroundColor(Color.TRANSPARENT);
 
         // 2. Pass the data to LoginFragment using a Bundle
+        // (Data Transaction Tool between Activity to Fragment)
         LoginFragment loginFragment = new LoginFragment();
         Bundle args = new Bundle();
         args.putBoolean("IS_YOUTH", isYouth);
