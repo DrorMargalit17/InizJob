@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,6 +25,16 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+/*
+ * Class: LoginFragment
+ * Purpose: Handles the user login process.
+ * * Methods and Actions List:
+ * 1. onCreate - Extracts arguments passed from other fragments.
+ * 2. onCreateView - Inflates layout and initializes UI components.
+ * 3. performLogin - Validates input and logs the user in via Firebase Authentication.
+ * 4. checkUserType - Checks the Realtime Database to determine if the user is a Youth or a Business.
+ * 5. updateToggleUI - Updates the visual toggle buttons based on the selected user type.
+ */
 public class LoginFragment extends Fragment {
 
     private boolean isYouthSelected = true;
@@ -44,7 +53,6 @@ public class LoginFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Receive the data passed from RegisterFragment (if any)
         if (getArguments() != null) {
             isYouthSelected = getArguments().getBoolean("IS_YOUTH", true);
         }
@@ -65,20 +73,30 @@ public class LoginFragment extends Fragment {
         etEmail = view.findViewById(R.id.etEmail);
         etPassword = view.findViewById(R.id.etPassword);
 
-        // Call this to set the correct colors immediately when the screen loads
         updateToggleUI();
 
-        toggleYouth.setOnClickListener(v -> {
-            isYouthSelected = true;
-            updateToggleUI();
+        toggleYouth.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                isYouthSelected = true;
+                updateToggleUI();
+            }
         });
 
-        toggleBusiness.setOnClickListener(v -> {
-            isYouthSelected = false;
-            updateToggleUI();
+        toggleBusiness.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                isYouthSelected = false;
+                updateToggleUI();
+            }
         });
 
-        btnLoginAction.setOnClickListener(v -> performLogin());
+        btnLoginAction.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                performLogin();
+            }
+        });
 
         return view;
     }
@@ -99,21 +117,27 @@ public class LoginFragment extends Fragment {
                         if (task.isSuccessful()) {
                             checkUserType();
                         } else {
-                            Toast.makeText(getContext(), "Error: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                            if (task.getException() != null) {
+                                Toast.makeText(getContext(), "Error: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                            }
                         }
                     }
                 });
     }
 
     private void checkUserType() {
-        if (mAuth.getCurrentUser() == null) return;
+        if (mAuth.getCurrentUser() == null) {
+            return;
+        }
 
         String userId = mAuth.getCurrentUser().getUid();
 
         mDatabase.child("users").child(userId).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DataSnapshot> task) {
-                if (!isAdded() || getActivity() == null) return;
+                if (!isAdded() || getActivity() == null) {
+                    return;
+                }
 
                 if (task.isSuccessful() && task.getResult() != null) {
                     DataSnapshot snapshot = task.getResult();
@@ -139,7 +163,9 @@ public class LoginFragment extends Fragment {
     }
 
     void updateToggleUI() {
-        if (getContext() == null) return;
+        if (getContext() == null) {
+            return;
+        }
         int purple = ContextCompat.getColor(getContext(), R.color.brand_purple);
 
         if (isYouthSelected) {

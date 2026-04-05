@@ -11,17 +11,26 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.List;
 
+/*
+ * Class: ManageJobAdapter
+ * Purpose: Binds job data to the RecyclerView in the MyJobsFragment for editing and deleting.
+ * * Methods and Actions List:
+ * 1. onCreateViewHolder - Inflates the layout for a single job item.
+ * 2. onBindViewHolder - Populates data and handles Edit/Delete button clicks.
+ * 3. getItemCount - Returns the total number of items in the list.
+ */
 public class ManageJobAdapter extends RecyclerView.Adapter<ManageJobAdapter.ManageViewHolder> {
 
     private List<Job> jobList;
     private Context context;
     private OnJobEditListener editListener;
 
-    // Interface to handle edit clicks
     public interface OnJobEditListener {
         void onEditClick(Job job);
     }
@@ -45,7 +54,6 @@ public class ManageJobAdapter extends RecyclerView.Adapter<ManageJobAdapter.Mana
         holder.tvManageTitle.setText(job.title);
         holder.tvManageLocation.setText(job.location);
 
-        // Edit Logic
         holder.btnEditJob.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -55,7 +63,6 @@ public class ManageJobAdapter extends RecyclerView.Adapter<ManageJobAdapter.Mana
             }
         });
 
-        // Delete Logic
         holder.btnDeleteJob.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -64,9 +71,12 @@ public class ManageJobAdapter extends RecyclerView.Adapter<ManageJobAdapter.Mana
                             .getReference("jobs")
                             .child(job.jobId)
                             .removeValue()
-                            .addOnCompleteListener(task -> {
-                                if (task.isSuccessful()) {
-                                    Toast.makeText(context, "המשרה נמחקה בהצלחה", Toast.LENGTH_SHORT).show();
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if (task.isSuccessful()) {
+                                        Toast.makeText(context, "המשרה נמחקה בהצלחה", Toast.LENGTH_SHORT).show();
+                                    }
                                 }
                             });
                 }

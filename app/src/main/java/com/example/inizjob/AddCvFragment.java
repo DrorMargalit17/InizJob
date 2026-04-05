@@ -240,7 +240,14 @@ public class AddCvFragment extends Fragment {
 
     private void saveToFirebase(Cv data, String aiText) {
         String uid = mAuth.getCurrentUser().getUid();
-        String cvId = (cvToEdit != null) ? cvToEdit.cvId : mDatabase.child("cvs").push().getKey();
+
+        // Removed Ternary Logic
+        String cvId;
+        if (cvToEdit != null) {
+            cvId = cvToEdit.cvId;
+        } else {
+            cvId = mDatabase.child("cvs").push().getKey();
+        }
 
         data.cvId = cvId;
         data.ownerId = uid;
@@ -254,7 +261,6 @@ public class AddCvFragment extends Fragment {
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
                     Toast.makeText(getContext(), "קורות החיים נשמרו!", Toast.LENGTH_SHORT).show();
-                    // Clear draft after successful save
                     mDatabase.child("cv_drafts").child(uid).removeValue();
                 }
             }

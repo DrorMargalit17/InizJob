@@ -29,11 +29,22 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.List;
 
+/*
+ * Class: HomeFragment
+ * Purpose: Main dashboard displaying available jobs. Handles real-time search and favorite toggling.
+ * * Methods and Actions List:
+ * 1. onCreateView - Inflates the layout and initializes components.
+ * 2. filterJobs - Filters the job list based on search text.
+ * 3. loadUserData - Fetches the user name and type to greet them properly.
+ * 4. loadSavedJobsFromFirebase - Listens to the user's saved jobs node to keep the UI stars updated.
+ * 5. loadJobsFromFirebase - Loads all available jobs and sets their unique IDs.
+ */
 public class HomeFragment extends Fragment {
 
     private RecyclerView rvHorizontalJobs;
     private JobAdapter jobAdapter;
-    private List<Job> jobList; // The original full list
+    private List<Job> jobList;
+    private List<String> savedJobIds;
 
     private TextView tvGreeting;
     private EditText etSearchJobs;
@@ -63,8 +74,9 @@ public class HomeFragment extends Fragment {
         rvHorizontalJobs.setLayoutManager(layoutManager);
 
         jobList = new ArrayList<>();
+        savedJobIds = new ArrayList<>();
 
-        jobAdapter = new JobAdapter(jobList, new JobAdapter.OnItemClickListener() {
+        jobAdapter = new JobAdapter(jobList, savedJobIds, new JobAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(Job job) {
                 JobDetailsFragment detailsFragment = new JobDetailsFragment();
@@ -79,11 +91,43 @@ public class HomeFragment extends Fragment {
                             .commit();
                 }
             }
+        }, new JobAdapter.OnFavoriteClickListener() {
+            @Override
+            public void onFavoriteClick(Job job, boolean isCurrentlySaved) {
+                if (job.jobId == null || job.jobId.isEmpty()) {
+                    Toast.makeText(getContext(), "שגיאה: למשרה זו חסר מזהה מערכת", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if (mAuth.getCurrentUser() != null) {
+                    String uid = mAuth.getCurrentUser().getUid();
+                    if (isCurrentlySaved) {
+                        mDatabase.child("saved_jobs").child(uid).child(job.jobId).removeValue()
+                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if (!task.isSuccessful()) {
+                                            Toast.makeText(getContext(), "שגיאה בהסרת השמירה", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                });
+                    } else {
+                        mDatabase.child("saved_jobs").child(uid).child(job.jobId).setValue(true)
+                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if (!task.isSuccessful()) {
+                                            Toast.makeText(getContext(), "שגיאה בשמירת המשרה", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                });
+                    }
+                }
+            }
         });
 
         rvHorizontalJobs.setAdapter(jobAdapter);
 
-        // Add logic for real-time search filtering
         etSearchJobs.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -98,6 +142,7 @@ public class HomeFragment extends Fragment {
         });
 
         loadUserData();
+        loadSavedJobsFromFirebase();
         loadJobsFromFirebase();
 
         fabAddJob.setOnClickListener(new View.OnClickListener() {
@@ -115,11 +160,9 @@ public class HomeFragment extends Fragment {
         return view;
     }
 
-    // Filter the original list and update the adapter
     private void filterJobs(String text) {
         List<Job> filteredList = new ArrayList<>();
         for (Job job : jobList) {
-            // Check if search text matches job title or company name
             if (job.title.toLowerCase().contains(text.toLowerCase()) ||
                     job.company.toLowerCase().contains(text.toLowerCase())) {
                 filteredList.add(job);
@@ -157,6 +200,26 @@ public class HomeFragment extends Fragment {
         }
     }
 
+    private void loadSavedJobsFromFirebase() {
+        if (mAuth.getCurrentUser() != null) {
+            String uid = mAuth.getCurrentUser().getUid();
+            mDatabase.child("saved_jobs").child(uid).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    savedJobIds.clear();
+                    for (DataSnapshot childSnapshot : snapshot.getChildren()) {
+                        savedJobIds.add(childSnapshot.getKey());
+                    }
+                    jobAdapter.updateSavedJobs(savedJobIds);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                }
+            });
+        }
+    }
+
     private void loadJobsFromFirebase() {
         mDatabase.child("jobs").addValueEventListener(new ValueEventListener() {
             @Override
@@ -165,10 +228,10 @@ public class HomeFragment extends Fragment {
                 for (DataSnapshot jobSnapshot : snapshot.getChildren()) {
                     Job job = jobSnapshot.getValue(Job.class);
                     if (job != null) {
+                        job.jobId = jobSnapshot.getKey();
                         jobList.add(job);
                     }
                 }
-                // Apply the search filter automatically when data refreshes
                 String currentSearch = etSearchJobs.getText().toString();
                 filterJobs(currentSearch);
             }

@@ -6,6 +6,13 @@ import android.view.View;
 import android.widget.Button;
 import androidx.appcompat.app.AppCompatActivity;
 
+/*
+ * Class: AuthActivity
+ * Purpose: Manages the authentication screens and switches between Login and Register fragments.
+ * * Methods and Actions List:
+ * 1. onCreate - Initializes UI elements and sets the default fragment to Login.
+ * 2. switchToLogin - Switches the current view to the LoginFragment and passes user type preference.
+ */
 public class AuthActivity extends AppCompatActivity {
 
     Button btnLoginTab, btnRegisterTab;
@@ -26,37 +33,41 @@ public class AuthActivity extends AppCompatActivity {
                 .replace(R.id.fragmentContainer, new LoginFragment())
                 .commit();
 
-        btnLoginTab.setOnClickListener(v -> switchToLogin(true));
+        // Explicit OnClickListener without Lambdas
+        btnLoginTab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switchToLogin(true);
+            }
+        });
 
-        btnRegisterTab.setOnClickListener(v -> {
-            btnRegisterTab.setTextColor(getResources().getColor(R.color.brand_purple));
-            lineRegister.setBackgroundColor(getResources().getColor(R.color.brand_purple));
-            btnLoginTab.setTextColor(getResources().getColor(R.color.text_hint));
-            lineLogin.setBackgroundColor(Color.TRANSPARENT);
+        // Explicit OnClickListener without Lambdas
+        btnRegisterTab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                btnRegisterTab.setTextColor(getResources().getColor(R.color.brand_purple));
+                lineRegister.setBackgroundColor(getResources().getColor(R.color.brand_purple));
+                btnLoginTab.setTextColor(getResources().getColor(R.color.text_hint));
+                lineLogin.setBackgroundColor(Color.TRANSPARENT);
 
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragmentContainer, new RegisterFragment())
-                    .commit();
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragmentContainer, new RegisterFragment())
+                        .commit();
+            }
         });
     }
 
-    // Public method to allow RegisterFragment to switch back to LoginFragment
-    // We pass 'isYouth' to know which toggle to select automatically
     public void switchToLogin(boolean isYouth) {
-        // 1. Update the top tabs UI
         btnLoginTab.setTextColor(getResources().getColor(R.color.brand_purple));
         lineLogin.setBackgroundColor(getResources().getColor(R.color.brand_purple));
         btnRegisterTab.setTextColor(getResources().getColor(R.color.text_hint));
         lineRegister.setBackgroundColor(Color.TRANSPARENT);
 
-        // 2. Pass the data to LoginFragment using a Bundle
-        // (Data Transaction Tool between Activity to Fragment)
         LoginFragment loginFragment = new LoginFragment();
         Bundle args = new Bundle();
         args.putBoolean("IS_YOUTH", isYouth);
         loginFragment.setArguments(args);
 
-        // 3. Switch the fragment
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragmentContainer, loginFragment)
                 .commit();

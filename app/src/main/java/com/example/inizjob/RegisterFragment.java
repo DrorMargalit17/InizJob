@@ -23,6 +23,14 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
+/*
+ * Class: RegisterFragment
+ * Purpose: Handles new user registration.
+ * * Methods and Actions List:
+ * 1. onCreateView - Initializes layout and UI references.
+ * 2. performRegistration - Validates form and creates a new user in Firebase Auth and Database.
+ * 3. updateToggleUI - Switches visuals based on Youth/Business selection.
+ */
 public class RegisterFragment extends Fragment {
 
     private boolean isYouthSelected = true;
@@ -53,17 +61,28 @@ public class RegisterFragment extends Fragment {
         etPassword = view.findViewById(R.id.etRegPassword);
         etBusinessCode = view.findViewById(R.id.etRegBusinessCode);
 
-        toggleYouth.setOnClickListener(v -> {
-            isYouthSelected = true;
-            updateToggleUI();
+        toggleYouth.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                isYouthSelected = true;
+                updateToggleUI();
+            }
         });
 
-        toggleBusiness.setOnClickListener(v -> {
-            isYouthSelected = false;
-            updateToggleUI();
+        toggleBusiness.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                isYouthSelected = false;
+                updateToggleUI();
+            }
         });
 
-        btnRegisterAction.setOnClickListener(v -> performRegistration());
+        btnRegisterAction.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                performRegistration();
+            }
+        });
 
         return view;
     }
@@ -75,7 +94,13 @@ public class RegisterFragment extends Fragment {
         String phone = etPhone.getText().toString().trim();
         String businessCode = etBusinessCode.getText().toString().trim();
 
-        String type = isYouthSelected ? "נוער" : "עסק";
+        // Removed Ternary Operator
+        String type;
+        if (isYouthSelected) {
+            type = "נוער";
+        } else {
+            type = "עסק";
+        }
 
         if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password) || TextUtils.isEmpty(fullName)) {
             Toast.makeText(getContext(), "Please fill all required fields", Toast.LENGTH_SHORT).show();
@@ -88,7 +113,9 @@ public class RegisterFragment extends Fragment {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             FirebaseUser firebaseUser = mAuth.getCurrentUser();
-                            if (firebaseUser == null) return;
+                            if (firebaseUser == null) {
+                                return;
+                            }
 
                             String userId = firebaseUser.getUid();
                             User newUser = new User(fullName, email, phone, type, businessCode);
@@ -99,11 +126,7 @@ public class RegisterFragment extends Fragment {
                                         public void onComplete(@NonNull Task<Void> dbTask) {
                                             if (dbTask.isSuccessful()) {
                                                 Toast.makeText(getContext(), "Registration Successful!", Toast.LENGTH_LONG).show();
-
-                                                // 1. Sign out (because Firebase auto-signs in after register)
                                                 mAuth.signOut();
-
-                                                // 2. Switch to Login Fragment via AuthActivity
                                                 if (getActivity() instanceof AuthActivity) {
                                                     ((AuthActivity) getActivity()).switchToLogin(isYouthSelected);
                                                 }
@@ -123,7 +146,9 @@ public class RegisterFragment extends Fragment {
     }
 
     void updateToggleUI() {
-        if (getContext() == null) return;
+        if (getContext() == null) {
+            return;
+        }
         int purple = ContextCompat.getColor(getContext(), R.color.brand_purple);
 
         if (isYouthSelected) {
