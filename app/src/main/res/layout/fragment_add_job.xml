@@ -1,345 +1,368 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
-    android:fillViewport="true">
+    android:orientation="vertical"
+    android:background="@color/background_gray"
+    android:layoutDirection="rtl">
 
-    <LinearLayout
+    <TextView
+        android:id="@+id/tvWizardTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="24dp">
+        android:text="שלב 1 מתוך 3: פרטי העסק"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@color/brand_purple"
+        android:gravity="center"
+        android:padding="20dp"
+        android:background="@color/white"
+        android:elevation="4dp"/>
 
-        <TextView
-            android:id="@+id/tvWizardTitle"
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:padding="20dp">
+
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="שלב 1 מתוך 3: פרטי העסק"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:textColor="@color/brand_purple"
-            android:layout_marginBottom="24dp"
-            android:layout_marginTop="10dp"
-            android:gravity="center"/>
-
-        <LinearLayout
-            android:id="@+id/page1"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="שם העסק"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_marginBottom="16dp">
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etCompany"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="text"/>
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="עיר (התחל להקליד...)"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_marginBottom="16dp">
-                <AutoCompleteTextView
-                    android:id="@+id/etLocation"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="text"
-                    android:completionThreshold="1"
-                    android:padding="16dp"/>
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="כתובת מדויקת של הסניף"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_marginBottom="16dp">
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etExactAddress"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="text"/>
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="תיאור כללי על העסק"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_marginBottom="16dp">
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etBusinessDesc"
-                    android:layout_width="match_parent"
-                    android:layout_height="100dp"
-                    android:gravity="top|start"
-                    android:inputType="textMultiLine"/>
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnUploadImages"
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:text="העלאת לוגו ותמונות עסק (בקרוב)"
-                android:textColor="@color/brand_purple"
-                app:backgroundTint="@color/white"
-                app:strokeColor="@color/brand_purple"
-                app:strokeWidth="2dp"
-                app:cornerRadius="12dp"
-                android:layout_marginBottom="24dp"/>
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnNext1"
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:text="המשך"
-                android:textSize="18sp"
-                app:backgroundTint="@null"
-                android:background="@drawable/bg_gradient_button"
-                app:cornerRadius="30dp"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/page2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:visibility="gone">
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="הגדרת המשרה (לדוגמה: מלצר/ית)"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_marginBottom="16dp">
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etTitle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="text"/>
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="תיאור המשרה (מה עושים בפועל?)"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_marginBottom="16dp">
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etJobDesc"
-                    android:layout_width="match_parent"
-                    android:layout_height="80dp"
-                    android:gravity="top|start"
-                    android:inputType="textMultiLine"/>
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="גיל מינימלי (14-18)"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_marginBottom="16dp">
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etMinAge"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="number"/>
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="דרישות קדם (הדגש אם מתאים לעבודה ראשונה)"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_marginBottom="16dp">
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etPrerequisites"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="textMultiLine"/>
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="שעות וימי עבודה (משמרות או סופי שבוע)"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_marginBottom="16dp">
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etHours"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="text"/>
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <CheckBox
-                android:id="@+id/cbFlexibility"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="אני מתחייב לגמישות בשעות בית ספר ובתקופות מבחנים"
-                android:textColor="@color/brand_purple"
-                android:textStyle="bold"
-                android:layout_marginBottom="24dp"/>
+            android:layout_height="wrap_content">
 
             <LinearLayout
+                android:id="@+id/page1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="vertical"
+                android:visibility="visible">
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnBack2"
-                    android:layout_width="0dp"
-                    android:layout_height="60dp"
-                    android:layout_weight="1"
-                    android:text="חזור"
-                    android:textColor="@color/brand_purple"
-                    app:backgroundTint="@color/white"
-                    app:strokeColor="@color/brand_purple"
-                    app:strokeWidth="2dp"
-                    app:cornerRadius="30dp"
-                    android:layout_marginEnd="8dp"/>
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnNext2"
-                    android:layout_width="0dp"
-                    android:layout_height="60dp"
-                    android:layout_weight="1"
-                    android:text="המשך"
-                    app:backgroundTint="@null"
-                    android:background="@drawable/bg_gradient_button"
-                    app:cornerRadius="30dp"/>
-            </LinearLayout>
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/page3"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:visibility="gone">
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="שכר שעתי (חובה מעל שכר מינימום!)"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_marginBottom="16dp">
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etSalary"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="numberDecimal"/>
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="תנאים נלווים (נסיעות, טיפים, ארוחות...)"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_marginBottom="16dp">
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etConditions"
-                    android:layout_width="match_parent"
-                    android:layout_height="80dp"
-                    android:gravity="top|start"
-                    android:inputType="textMultiLine"/>
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="16dp">
                 <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:hint="שם איש קשר"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                    android:layout_marginEnd="8dp">
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="שם העסק / חברה"
+                    android:layout_marginBottom="12dp">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etCompany"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="עיר"
+                    android:layout_marginBottom="12dp">
+                    <AutoCompleteTextView
+                        android:id="@+id/etLocation"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="none"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="תחום עבודה"
+                    android:layout_marginBottom="12dp">
+                    <AutoCompleteTextView
+                        android:id="@+id/etWorkField"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="none"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="כתובת מדויקת (אופציונלי)"
+                    android:layout_marginBottom="12dp">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etExactAddress"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="תיאור קצר של העסק"
+                    android:layout_marginBottom="24dp">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etBusinessDesc"
+                        android:layout_width="match_parent"
+                        android:layout_height="80dp"
+                        android:gravity="top|start"
+                        android:inputType="textMultiLine"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnNext1"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:text="המשך לשלב הבא"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    app:cornerRadius="30dp"
+                    app:backgroundTint="@color/brand_purple"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/page2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="כותרת המשרה (למשל: מלצר/ית)"
+                    android:layout_marginBottom="12dp">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="היקף משרה"
+                    android:layout_marginBottom="12dp">
+                    <AutoCompleteTextView
+                        android:id="@+id/etJobScope"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="none"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="תיאור התפקיד"
+                    android:layout_marginBottom="12dp">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etJobDesc"
+                        android:layout_width="match_parent"
+                        android:layout_height="80dp"
+                        android:gravity="top|start"
+                        android:inputType="textMultiLine"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="גיל מינימלי (14-18)"
+                    android:layout_marginBottom="12dp">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etMinAge"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="number"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <CheckBox
+                    android:id="@+id/cbRequiresExperience"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="דרוש ניסיון מקדים בתחום"
+                    android:textSize="16sp"
+                    android:layout_marginBottom="12dp"/>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="דרישות נוספות (אופציונלי)"
+                    android:layout_marginBottom="12dp">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etPrerequisites"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="שעות וימי עבודה"
+                    android:layout_marginBottom="16dp">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etHours"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <CheckBox
+                    android:id="@+id/cbFlexibility"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="אני מתחייב/ת לגמישות בשעות בתקופת הלימודים ובגרויות (חובה)"
+                    android:textSize="16sp"
+                    android:layout_marginBottom="24dp"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnBack2"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="60dp"
+                        android:text="חזור"
+                        android:textSize="18sp"
+                        android:layout_marginEnd="8dp"/>
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnNext2"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="60dp"
+                        android:text="המשך"
+                        android:textSize="18sp"
+                        app:cornerRadius="30dp"
+                        app:backgroundTint="@color/brand_purple"
+                        android:layout_marginStart="8dp"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/page3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="שכר שעתי (בשקלים)"
+                    android:layout_marginBottom="12dp">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etSalary"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="numberDecimal"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <CheckBox
+                    android:id="@+id/cbTravelExpenses"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="החזר נסיעות משולם מעבר לשכר השעתי"
+                    android:textSize="16sp"
+                    android:layout_marginBottom="12dp"/>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="תנאים נוספים (למשל: ארוחות, בונוסים)"
+                    android:layout_marginBottom="12dp">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etConditions"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="פרטי איש קשר למועמדים:"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="#424242"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp"/>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="שם איש הקשר"
+                    android:layout_marginBottom="12dp">
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etContactName"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="text"/>
+                        android:layout_height="wrap_content"/>
                 </com.google.android.material.textfield.TextInputLayout>
+
                 <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="0dp"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:hint="תפקיד"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+                    android:hint="תפקיד (למשל: מנהל משמרת)"
+                    android:layout_marginBottom="12dp">
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etContactRole"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="text"/>
+                        android:layout_height="wrap_content"/>
                 </com.google.android.material.textfield.TextInputLayout>
-            </LinearLayout>
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="טלפון / וואטסאפ לבירורים"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_marginBottom="16dp">
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etContactPhone"
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="phone"/>
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:hint="טלפון / וואטסאפ ליצירת קשר"
+                    android:layout_marginBottom="12dp">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etContactPhone"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="phone"/>
+                </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="מספר ע.מ / ח.פ (לאימות)"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_marginBottom="32dp">
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etBusinessId"
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="number"/>
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:hint="קוד עסק (ח.פ / עוסק מורשה)"
+                    android:layout_marginBottom="24dp">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etBusinessId"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="number"/>
+                </com.google.android.material.textfield.TextInputLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnBack3"
-                    android:layout_width="0dp"
-                    android:layout_height="60dp"
-                    android:layout_weight="1"
-                    android:text="חזור"
-                    android:textColor="@color/brand_purple"
-                    app:backgroundTint="@color/white"
-                    app:strokeColor="@color/brand_purple"
-                    app:strokeWidth="2dp"
-                    app:cornerRadius="30dp"
-                    android:layout_marginEnd="8dp"/>
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnSaveJob"
-                    android:layout_width="0dp"
-                    android:layout_height="60dp"
-                    android:layout_weight="1"
-                    android:text="פרסם משרה"
-                    app:backgroundTint="#2E7D32"
-                    app:cornerRadius="30dp"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnBack3"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="60dp"
+                        android:text="חזור"
+                        android:textSize="18sp"
+                        android:layout_marginEnd="8dp"/>
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnSaveJob"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="60dp"
+                        android:text="פרסם משרה"
+                        android:textSize="18sp"
+                        app:cornerRadius="30dp"
+                        app:backgroundTint="@color/brand_purple"
+                        android:layout_marginStart="8dp"/>
+                </LinearLayout>
             </LinearLayout>
-        </LinearLayout>
 
-    </LinearLayout>
-</ScrollView>
+        </FrameLayout>
+    </ScrollView>
+</LinearLayout>

@@ -30,68 +30,38 @@
             android:background="@drawable/bg_search_bar"
             android:drawableStart="@android:drawable/ic_menu_search"
             android:drawablePadding="10dp"
-            android:hint="חיפוש עבודות..."
+            android:hint="חיפוש חופשי..."
             android:inputType="text"
             android:paddingStart="16dp"
             android:paddingEnd="16dp"
             android:textColor="#000000"
             android:gravity="right|center_vertical" />
 
-        <HorizontalScrollView
+        <LinearLayout
+            android:id="@+id/btnOpenAdvancedFilters"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:scrollbars="none"
-            android:layoutDirection="rtl">
+            android:orientation="horizontal"
+            android:background="@drawable/bg_search_bar"
+            android:padding="12dp"
+            android:gravity="center_vertical"
+            android:layoutDirection="rtl"
+            android:layout_marginBottom="12dp">
 
-            <LinearLayout
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@android:drawable/ic_menu_sort_by_size"
+                app:tint="@color/brand_purple"/>
+
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="12dp"
-                    android:background="@drawable/bg_search_bar"
-                    android:paddingHorizontal="16dp"
-                    android:paddingVertical="8dp"
-                    android:text="מיקום"
-                    android:textColor="#000000"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="12dp"
-                    android:background="@drawable/bg_search_bar"
-                    android:paddingHorizontal="16dp"
-                    android:paddingVertical="8dp"
-                    android:text="שכר"
-                    android:textColor="#000000"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="12dp"
-                    android:background="@drawable/bg_search_bar"
-                    android:paddingHorizontal="16dp"
-                    android:paddingVertical="8dp"
-                    android:text="תחום"
-                    android:textColor="#000000"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/bg_search_bar"
-                    android:paddingHorizontal="16dp"
-                    android:paddingVertical="8dp"
-                    android:text="סוג משרה"
-                    android:textColor="#000000"
-                    android:textStyle="bold" />
-            </LinearLayout>
-        </HorizontalScrollView>
+                android:text="סינון מתקדם (מיקום, שכר, גיל...)"
+                android:textColor="@color/brand_purple"
+                android:textStyle="bold"
+                android:layout_marginStart="12dp" />
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"

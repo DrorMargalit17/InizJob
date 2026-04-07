@@ -26,7 +26,7 @@ import com.google.firebase.database.FirebaseDatabase;
  * Purpose: Manages the user profile screen, displaying user info and a dynamic settings menu.
  * * Methods and Actions List:
  * 1. onCreateView - Inflates the layout for the profile screen.
- * 2. onViewCreated - Maps all UI elements and sets click listeners for menu rows.
+ * 2. onViewCreated - Maps all UI elements and sets explicit click listeners for menu rows.
  * 3. fetchUserProfile - Retrieves the connected user's details from Firebase.
  * 4. updateUI - Populates the header and dynamically hides/shows menu rows based on user type (Youth/Business).
  * 5. performLogout - Securely logs out the user and clears navigation history.
@@ -42,7 +42,6 @@ public class ProfileFragment extends Fragment {
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
 
-    // משתנה ששומר את סוג המשתמש כדי לדעת לאן לנווט בלחיצה על כרטיס המשרות
     private String currentUserType = "";
 
     public ProfileFragment() {
@@ -81,15 +80,19 @@ public class ProfileFragment extends Fragment {
         rowRights = view.findViewById(R.id.rowRights);
         rowLogout = view.findViewById(R.id.rowLogout);
 
-        // Set explicit click listeners (No Lambdas)
+        // Explicit listeners without Lambdas
         rowEditProfile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getContext(), "עריכת פרופיל - בקרוב...", Toast.LENGTH_SHORT).show();
+                if (getActivity() != null) {
+                    getActivity().getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.mainFragmentContainer, new EditProfileFragment())
+                            .addToBackStack(null)
+                            .commit();
+                }
             }
         });
 
-        // עדכון הלחיצה על שורת המשרות בהתאם לסוג המשתמש
         rowJobs.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -126,25 +129,19 @@ public class ProfileFragment extends Fragment {
         rowContact.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getContext(), "יצירת קשר - בקרוב...", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Contact page coming soon...", Toast.LENGTH_SHORT).show();
             }
         });
 
         rowAbout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String aboutTitle = "אודות InizJob";
-                String aboutContent = "ברוכים הבאים ל-InizJob!\n\n" +
-                        "InizJob היא פלטפורמה חדשנית וחכמה שנועדה לגשר על הפער שבין בני נוער המחפשים תעסוקה ראשונה, לבין בעלי עסקים מקומיים הזקוקים לעובדים איכותיים ונמרצים.\n\n" +
-                        "המטרה שלנו היא ליצור סביבה בטוחה, נגישה והוגנת. דרך האפליקציה, בני הנוער יכולים למצוא משרות שמתאימות במיוחד עבורם, ליצור קורות חיים מקצועיים תוך שניות בעזרת בינה מלאכותית (AI), ולנהל את המשרות המועדפות עליהם.\n\n" +
-                        "במקביל, בעלי העסקים נהנים ממערכת ניהול משרות נוחה ויעילה, שמאפשרת להם להגיע בדיוק לקהל היעד הרלוונטי באזורם.\n\n" +
-                        "פרויקט זה פותח במסגרת פרויקט גמר (5 יח\"ל) בהנדסת תוכנה. אנו מאמינים בשוויון הזדמנויות ובשקיפות מלאה לגבי זכויות עובדים.\n\n" +
-                        "גרסה 1.0.0";
-
                 InfoPageFragment infoFragment = new InfoPageFragment();
                 Bundle args = new Bundle();
-                args.putString("INFO_TITLE", aboutTitle);
-                args.putString("INFO_CONTENT", aboutContent);
+
+                // Fetching strings securely from resources
+                args.putString("INFO_TITLE", getString(R.string.about_title));
+                args.putString("INFO_CONTENT", getString(R.string.about_content));
                 infoFragment.setArguments(args);
 
                 if (getActivity() != null) {
@@ -159,30 +156,12 @@ public class ProfileFragment extends Fragment {
         rowRights.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String rightsTitle = "זכויות בני נוער עובדים";
-                String rightsContent = "החוק בישראל מגן עליכם. חשוב שתדעו מה מגיע לכם כשאתם יוצאים לעבוד:\n\n" +
-                        "1. שכר מינימום (לשעה):\n" +
-                        "• עד גיל 16: 25.28 ₪\n" +
-                        "• גיל 16 עד 17: 27.09 ₪\n" +
-                        "• גיל 17 עד 18: 29.97 ₪\n\n" +
-                        "2. תקופת התלמדות (חפיפה):\n" +
-                        "חובה על המעסיק לשלם לכם על כל שעת התלמדות או 'טסט', גם אם בסוף לא התקבלתם לעבודה. אין דבר כזה 'התלמדות בחינם'.\n\n" +
-                        "3. שעות עבודה:\n" +
-                        "• מותר להעסיק נוער עד 8 שעות ביום (או 9 שעות במקום שעובדים בו 5 ימים בשבוע).\n" +
-                        "• אסור להעסיק בני נוער בשעות נוספות בשום מצב.\n\n" +
-                        "4. הפסקות:\n" +
-                        "ביום עבודה שאורכו מעל 6 שעות, מגיעה לכם הפסקה של 45 דקות לפחות (מתוכה חצי שעה רצופה). זמן ההפסקה הוא לרוב על חשבונכם, אלא אם המעסיק דרש שתישארו בעמדה.\n\n" +
-                        "5. עבודת לילה:\n" +
-                        "• מתחת לגיל 16: אסור לעבוד אחרי השעה 20:00.\n" +
-                        "• מעל גיל 16: אסור לעבוד אחרי השעה 22:00. (בחופשות רשמיות מותר עד חצות או עד 1:00 בלילה, רק בתנאי שהמעסיק דואג לכם להסעה הביתה).\n\n" +
-                        "6. נסיעות:\n" +
-                        "בנוסף לשכר, מגיע לכם החזר הוצאות נסיעה עבור כל יום עבודה (לפי עלות חופשי-יומי או כרטיסייה, הנמוך מביניהם).\n\n" +
-                        "* המידע מוגש כהמלצה בלבד ויש להתעדכן בתקנות משרד העבודה המעודכנות.";
-
                 InfoPageFragment infoFragment = new InfoPageFragment();
                 Bundle args = new Bundle();
-                args.putString("INFO_TITLE", rightsTitle);
-                args.putString("INFO_CONTENT", rightsContent);
+
+                // Fetching strings securely from resources
+                args.putString("INFO_TITLE", getString(R.string.rights_title));
+                args.putString("INFO_CONTENT", getString(R.string.rights_content));
                 infoFragment.setArguments(args);
 
                 if (getActivity() != null) {
@@ -226,7 +205,7 @@ public class ProfileFragment extends Fragment {
                     }
                 } else {
                     if (getContext() != null) {
-                        Toast.makeText(getContext(), "שגיאה בטעינת הנתונים", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "Error loading profile data", Toast.LENGTH_SHORT).show();
                     }
                 }
             }
@@ -234,23 +213,16 @@ public class ProfileFragment extends Fragment {
     }
 
     private void updateUI(User userProfile) {
-        // שומרים את סוג המשתמש שחזר ממסד הנתונים כדי להשתמש בו בניווט
         currentUserType = userProfile.type;
 
         tvProfileName.setText(userProfile.fullName);
         tvProfileEmail.setText(userProfile.email);
         tvProfileTypeBadge.setText(userProfile.type);
 
-        // Dynamic Menu Logic based on User Type
         if ("עסק".equals(userProfile.type)) {
-            // Business logic
             tvRowJobsText.setText("ניהול המשרות שלי");
-
-            // Hide CV section completely
             rowCv.setVisibility(View.GONE);
             dividerCv.setVisibility(View.GONE);
-
-            // Show Business Code
             rowBusinessCode.setVisibility(View.VISIBLE);
             dividerBusinessCode.setVisibility(View.VISIBLE);
 
@@ -265,14 +237,9 @@ public class ProfileFragment extends Fragment {
             }
 
         } else {
-            // Youth logic
             tvRowJobsText.setText("המשרות ששמרתי");
-
-            // Show CV section
             rowCv.setVisibility(View.VISIBLE);
             dividerCv.setVisibility(View.VISIBLE);
-
-            // Hide Business Code completely
             rowBusinessCode.setVisibility(View.GONE);
             dividerBusinessCode.setVisibility(View.GONE);
         }
@@ -282,7 +249,6 @@ public class ProfileFragment extends Fragment {
         mAuth.signOut();
         if (getActivity() != null) {
             Intent intent = new Intent(getActivity(), AuthActivity.class);
-            // Clear navigation stack to prevent returning
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
             getActivity().finish();

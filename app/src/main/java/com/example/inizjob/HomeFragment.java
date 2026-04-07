@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,40 +22,44 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /*
  * Class: HomeFragment
- * Purpose: Main dashboard displaying available jobs. Handles real-time search and favorite toggling.
+ * Purpose: Main interface for users to browse and filter jobs. Uses JobRepository for data management.
  * * Methods and Actions List:
- * 1. onCreateView - Inflates the layout and initializes components.
- * 2. filterJobs - Filters the job list based on search text.
- * 3. loadUserData - Fetches the user name and type to greet them properly.
- * 4. loadSavedJobsFromFirebase - Listens to the user's saved jobs node to keep the UI stars updated.
- * 5. loadJobsFromFirebase - Loads all available jobs and sets their unique IDs.
+ * 1. onCreateView - Initializes UI components, listeners, and the repository.
+ * 2. startDataObservation - Subscribes to real-time updates for jobs and user-saved favorites.
+ * 3. loadUserData - Retrieves user profile info to update the greeting and FAB visibility.
+ * 4. refreshDisplayList - Re-applies filters to the master job list and updates the RecyclerView.
  */
 public class HomeFragment extends Fragment {
 
     private RecyclerView rvHorizontalJobs;
     private JobAdapter jobAdapter;
-    private List<Job> jobList;
+    private List<Job> allJobsList;
     private List<String> savedJobIds;
 
     private TextView tvGreeting;
     private EditText etSearchJobs;
     private FloatingActionButton fabAddJob;
+    private LinearLayout btnOpenAdvancedFilters;
 
-    private FirebaseAuth mAuth;
-    private DatabaseReference mDatabase;
+    private JobRepository repository;
+    private DatabaseReference mUserRef;
+
+    // Filter state variables
+    private String filterLocs = "", filterField = "", filterScope = "";
+    private double filterSalary = 0;
+    private int filterAge = 0;
+    private boolean filterNoExp = false, filterTravel = false;
 
     public HomeFragment() {
-        // Required empty public constructor
+        // Required empty constructor
     }
 
     @Nullable
@@ -62,88 +67,107 @@ public class HomeFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
 
-        mAuth = FirebaseAuth.getInstance();
-        mDatabase = FirebaseDatabase.getInstance("https://inizjob4586-default-rtdb.firebaseio.com/").getReference();
+        repository = new JobRepository();
+        mUserRef = FirebaseDatabase.getInstance("https://inizjob4586-default-rtdb.firebaseio.com/").getReference("users");
 
-        rvHorizontalJobs = view.findViewById(R.id.rvHorizontalJobs);
-        tvGreeting = view.findViewById(R.id.tvGreeting);
-        etSearchJobs = view.findViewById(R.id.etSearchJobs);
-        fabAddJob = view.findViewById(R.id.fabAddJob);
-
-        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, true);
-        rvHorizontalJobs.setLayoutManager(layoutManager);
-
-        jobList = new ArrayList<>();
+        allJobsList = new ArrayList<>();
         savedJobIds = new ArrayList<>();
 
-        jobAdapter = new JobAdapter(jobList, savedJobIds, new JobAdapter.OnItemClickListener() {
+        tvGreeting = view.findViewById(R.id.tvGreeting);
+        rvHorizontalJobs = view.findViewById(R.id.rvHorizontalJobs);
+        etSearchJobs = view.findViewById(R.id.etSearchJobs);
+        fabAddJob = view.findViewById(R.id.fabAddJob);
+        btnOpenAdvancedFilters = view.findViewById(R.id.btnOpenAdvancedFilters);
+
+        //sets recycleView to be horizontal and reverse
+        rvHorizontalJobs.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, true));
+
+        //connects between job data to visual cards of jobs
+        jobAdapter = new JobAdapter(new ArrayList<Job>(), savedJobIds, new JobAdapter.OnItemClickListener() {
             @Override
+
+            /**
+             * Navigates to JobDetailsFragment when a job is clicked.
+             * - Packs the selected Job object into a Bundle.
+             * - Replaces the current fragment with the details view.
+             * - Adds to back stack to allow the user to return to the home screen.
+             */
             public void onItemClick(Job job) {
+                // Create a new instance of the details fragment
                 JobDetailsFragment detailsFragment = new JobDetailsFragment();
+
+                // Pass the selected job data to the fragment using a Bundle
                 Bundle bundle = new Bundle();
                 bundle.putSerializable("SELECTED_JOB", job);
                 detailsFragment.setArguments(bundle);
 
+                // Perform the fragment transition if the activity is available
                 if (getActivity() != null) {
                     getActivity().getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.mainFragmentContainer, detailsFragment)
-                            .addToBackStack(null)
-                            .commit();
+                            .replace(R.id.mainFragmentContainer, detailsFragment) // Switch to details view
+                            .addToBackStack(null)// Enable "Back" button functionality
+                            .commit(); //Execute the change
                 }
             }
         }, new JobAdapter.OnFavoriteClickListener() {
             @Override
+            /**
+             * This listener performs the following actions:
+             * 1. Checks if a user is currently authenticated via FirebaseAuth.
+             * 2. If authenticated, retrieves the User ID (UID) and Job ID.
+             * 3. Calls the JobRepository to toggle the favorite status (add or remove) based on its current state.
+             */
             public void onFavoriteClick(Job job, boolean isCurrentlySaved) {
-                if (job.jobId == null || job.jobId.isEmpty()) {
-                    Toast.makeText(getContext(), "שגיאה: למשרה זו חסר מזהה מערכת", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                if (mAuth.getCurrentUser() != null) {
-                    String uid = mAuth.getCurrentUser().getUid();
-                    if (isCurrentlySaved) {
-                        mDatabase.child("saved_jobs").child(uid).child(job.jobId).removeValue()
-                                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        if (!task.isSuccessful()) {
-                                            Toast.makeText(getContext(), "שגיאה בהסרת השמירה", Toast.LENGTH_SHORT).show();
-                                        }
-                                    }
-                                });
-                    } else {
-                        mDatabase.child("saved_jobs").child(uid).child(job.jobId).setValue(true)
-                                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        if (!task.isSuccessful()) {
-                                            Toast.makeText(getContext(), "שגיאה בשמירת המשרה", Toast.LENGTH_SHORT).show();
-                                        }
-                                    }
-                                });
-                    }
+                if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+                    // Update the user's favorite status in the remote repository
+                    repository.toggleFavorite(FirebaseAuth.getInstance().getCurrentUser().getUid(), job.jobId, isCurrentlySaved);
                 }
             }
         });
-
+        /**
+         * Finalizes the HomeFragment setup:
+         * 1. Attaches the initialized adapter to the RecyclerView.
+         * 2. Initializes UI listeners and search functionality.
+         * 3. Loads user-specific profile data and greeting.
+         * 4. Starts real-time observation for job and favorite updates.
+         */
         rvHorizontalJobs.setAdapter(jobAdapter);
 
-        etSearchJobs.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+        setupListeners();
+        loadUserData();
+        startDataObservation();
 
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+        return view;
+    }
 
+    private void setupListeners() {
+        btnOpenAdvancedFilters.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void afterTextChanged(Editable s) {
-                filterJobs(s.toString());
+            public void onClick(View v) {
+                FilterBottomSheetFragment filterSheet = new FilterBottomSheetFragment(new FilterBottomSheetFragment.FilterListener() {
+                    @Override
+                    public void onApplyFilters(String locs, double salary, String field, String scope, int age, boolean noExp, boolean travel) {
+                        filterLocs = locs; filterSalary = salary; filterField = field;
+                        filterScope = scope; filterAge = age; filterNoExp = noExp; filterTravel = travel;
+                        refreshDisplayList();
+                    }
+                    @Override
+                    public void onClearFilters() {
+                        filterLocs = ""; filterSalary = 0; filterField = "";
+                        filterScope = ""; filterAge = 0; filterNoExp = false; filterTravel = false;
+                        etSearchJobs.setText("");
+                        refreshDisplayList();
+                    }
+                });
+                filterSheet.show(getChildFragmentManager(), "FilterSheet");
             }
         });
 
-        loadUserData();
-        loadSavedJobsFromFirebase();
-        loadJobsFromFirebase();
+        etSearchJobs.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            @Override public void afterTextChanged(Editable s) { refreshDisplayList(); }
+        });
 
         fabAddJob.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -156,43 +180,34 @@ public class HomeFragment extends Fragment {
                 }
             }
         });
-
-        return view;
-    }
-
-    private void filterJobs(String text) {
-        List<Job> filteredList = new ArrayList<>();
-        for (Job job : jobList) {
-            if (job.title.toLowerCase().contains(text.toLowerCase()) ||
-                    job.company.toLowerCase().contains(text.toLowerCase())) {
-                filteredList.add(job);
-            }
-        }
-        jobAdapter.filterList(filteredList);
     }
 
     private void loadUserData() {
-        if (mAuth.getCurrentUser() != null) {
-            String uid = mAuth.getCurrentUser().getUid();
-
-            mDatabase.child("users").child(uid).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+            //gets user's Id from firebase
+            String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+            // Access the specific user node in the database
+            mUserRef.child(uid).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<DataSnapshot> task) {
-                    if (task.isSuccessful() && task.getResult().exists()) {
+                    if (task.isSuccessful()) {
                         DataSnapshot snapshot = task.getResult();
+                        if (snapshot != null) {
+                            if (snapshot.exists()) {
+                                // Set personalized welcome message
+                                String fullName = snapshot.child("fullName").getValue(String.class);
+                                if (fullName != null) {
+                                    tvGreeting.setText("שלום " + fullName + ",\nאיזו עבודה תרצה לחפש היום?");
+                                }
 
-                        String fullName = snapshot.child("fullName").getValue(String.class);
-                        if (fullName != null) {
-                            tvGreeting.setText("שלום " + fullName + ",\nאיזו עבודה תרצה לחפש היום?");
-                        } else {
-                            tvGreeting.setText("שלום,\nאיזו עבודה תרצה לחפש היום?");
-                        }
-
-                        String type = snapshot.child("type").getValue(String.class);
-                        if ("עסק".equals(type)) {
-                            fabAddJob.setVisibility(View.VISIBLE);
-                        } else {
-                            fabAddJob.setVisibility(View.GONE);
+                                // Toggle FAB visibility based on user account type
+                                String type = snapshot.child("type").getValue(String.class);
+                                if ("עסק".equals(type)) {
+                                    fabAddJob.setVisibility(View.VISIBLE);
+                                } else {
+                                    fabAddJob.setVisibility(View.GONE);
+                                }
+                            }
                         }
                     }
                 }
@@ -200,48 +215,45 @@ public class HomeFragment extends Fragment {
         }
     }
 
-    private void loadSavedJobsFromFirebase() {
-        if (mAuth.getCurrentUser() != null) {
-            String uid = mAuth.getCurrentUser().getUid();
-            mDatabase.child("saved_jobs").child(uid).addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    savedJobIds.clear();
-                    for (DataSnapshot childSnapshot : snapshot.getChildren()) {
-                        savedJobIds.add(childSnapshot.getKey());
-                    }
-                    jobAdapter.updateSavedJobs(savedJobIds);
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-                }
-            });
-        }
-    }
-
-    private void loadJobsFromFirebase() {
-        mDatabase.child("jobs").addValueEventListener(new ValueEventListener() {
+    private void startDataObservation() {
+        // Subscribe to all job postings from the repository
+        repository.fetchAllJobs(new JobRepository.DataStatus() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                jobList.clear();
-                for (DataSnapshot jobSnapshot : snapshot.getChildren()) {
-                    Job job = jobSnapshot.getValue(Job.class);
-                    if (job != null) {
-                        job.jobId = jobSnapshot.getKey();
-                        jobList.add(job);
-                    }
-                }
-                String currentSearch = etSearchJobs.getText().toString();
-                filterJobs(currentSearch);
+            public void onDataLoaded(List<Job> jobs) {
+                // Update the master list and refresh the filtered display
+                allJobsList = jobs;
+                refreshDisplayList();
             }
-
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
+            public void onSavedIdsLoaded(List<String> savedIds) {
+                // Update the adapter's knowledge of which jobs are favorited
+                jobAdapter.updateSavedJobs(savedIds);
+            }
+            @Override
+            public void onError(String error) {
+                // Notify the user in case of a data retrieval failure
                 if (getContext() != null) {
-                    Toast.makeText(getContext(), "Error loading jobs: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), error, Toast.LENGTH_SHORT).show();
                 }
             }
         });
+
+        // Synchronize the user's specific saved jobs if logged in
+        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+            repository.loadSavedJobIds(FirebaseAuth.getInstance().getCurrentUser().getUid(), new JobRepository.DataStatus() {
+                // Ensure the UI reflects the user's latest favorites
+                @Override public void onDataLoaded(List<Job> jobs) {}
+                @Override public void onSavedIdsLoaded(List<String> savedIds) { jobAdapter.updateSavedJobs(savedIds); }
+                @Override public void onError(String error) {}
+            });
+        }
+    }
+
+    private void refreshDisplayList() {
+        // Apply all active filters to the master list of jobs
+        List<Job> filtered = repository.applyAdvancedFilters(allJobsList, etSearchJobs.getText().toString(),
+                filterLocs, filterSalary, filterField, filterScope, filterAge, filterNoExp, filterTravel);
+        // Update the adapter with the filtered results to refresh the UI
+        jobAdapter.filterList(filtered);
     }
 }

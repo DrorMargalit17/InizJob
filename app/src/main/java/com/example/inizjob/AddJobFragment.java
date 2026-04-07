@@ -30,10 +30,10 @@ import com.google.firebase.database.FirebaseDatabase;
  * * Methods and Actions List:
  * 1. onCreate - Checks if existing Job data is passed for editing.
  * 2. onCreateView - Inflates the layout and initializes all views.
- * 3. setupCityDropdown - Prepares the auto-complete logic for Israeli cities.
+ * 3. setupDropdowns - Prepares the auto-complete logic for cities, work fields, and job scopes.
  * 4. prefillDataIfEditing - Fills the form with existing data if in Edit mode.
- * 5. setupNavigationButtons - Manages the Next/Back logic between wizard pages.
- * 6. validateAndSaveJob - Validates fields (age, salary) and saves data to Firebase.
+ * 5. setupNavigationButtons - Manages the Next/Back logic between wizard pages using full explicit conditions.
+ * 6. validateAndSaveJob - Validates fields and saves data securely to Firebase using full if-else conditions.
  */
 public class AddJobFragment extends Fragment {
 
@@ -41,12 +41,14 @@ public class AddJobFragment extends Fragment {
     private TextView tvWizardTitle;
 
     private TextInputEditText etCompany, etExactAddress, etBusinessDesc;
-    private AutoCompleteTextView etLocation;
+    private AutoCompleteTextView etLocation, etWorkField;
 
     private TextInputEditText etTitle, etJobDesc, etMinAge, etPrerequisites, etHours;
-    private CheckBox cbFlexibility;
+    private AutoCompleteTextView etJobScope;
+    private CheckBox cbFlexibility, cbRequiresExperience;
 
     private TextInputEditText etSalary, etConditions, etContactName, etContactRole, etContactPhone, etBusinessId;
+    private CheckBox cbTravelExpenses;
 
     private Button btnNext1, btnNext2, btnBack2, btnBack3, btnSaveJob;
     private DatabaseReference mDatabase;
@@ -59,8 +61,10 @@ public class AddJobFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null && getArguments().containsKey("EDIT_JOB")) {
-            jobToEdit = (Job) getArguments().getSerializable("EDIT_JOB");
+        if (getArguments() != null) {
+            if (getArguments().containsKey("EDIT_JOB")) {
+                jobToEdit = (Job) getArguments().getSerializable("EDIT_JOB");
+            }
         }
     }
 
@@ -78,17 +82,21 @@ public class AddJobFragment extends Fragment {
 
         etCompany = view.findViewById(R.id.etCompany);
         etLocation = view.findViewById(R.id.etLocation);
+        etWorkField = view.findViewById(R.id.etWorkField);
         etExactAddress = view.findViewById(R.id.etExactAddress);
         etBusinessDesc = view.findViewById(R.id.etBusinessDesc);
 
         etTitle = view.findViewById(R.id.etTitle);
+        etJobScope = view.findViewById(R.id.etJobScope);
         etJobDesc = view.findViewById(R.id.etJobDesc);
         etMinAge = view.findViewById(R.id.etMinAge);
+        cbRequiresExperience = view.findViewById(R.id.cbRequiresExperience);
         etPrerequisites = view.findViewById(R.id.etPrerequisites);
         etHours = view.findViewById(R.id.etHours);
         cbFlexibility = view.findViewById(R.id.cbFlexibility);
 
         etSalary = view.findViewById(R.id.etSalary);
+        cbTravelExpenses = view.findViewById(R.id.cbTravelExpenses);
         etConditions = view.findViewById(R.id.etConditions);
         etContactName = view.findViewById(R.id.etContactName);
         etContactRole = view.findViewById(R.id.etContactRole);
@@ -101,22 +109,39 @@ public class AddJobFragment extends Fragment {
         btnBack3 = view.findViewById(R.id.btnBack3);
         btnSaveJob = view.findViewById(R.id.btnSaveJob);
 
-        setupCityDropdown();
+        setupDropdowns();
         setupNavigationButtons();
         prefillDataIfEditing();
 
         return view;
     }
 
-    private void setupCityDropdown() {
+    private void setupDropdowns() {
+        if (getContext() == null) {
+            return;
+        }
+
         String[] israeliCities = new String[]{
                 "תל אביב", "ירושלים", "חיפה", "ראשון לציון", "פתח תקווה", "אשדוד", "נתניה",
                 "באר שבע", "חולון", "בני ברק", "רמת גן", "רחובות", "אשקלון", "בת ים",
                 "מודיעין-מכבים-רעות", "כפר סבא", "הרצליה", "חדרה", "רעננה", "מודיעין עילית",
                 "הוד השרון", "קריית עטא", "נהריה", "קריית גת", "אילת"
         };
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_dropdown_item_1line, israeliCities);
-        etLocation.setAdapter(adapter);
+        ArrayAdapter<String> cityAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_dropdown_item_1line, israeliCities);
+        etLocation.setAdapter(cityAdapter);
+
+        String[] workFieldsList = new String[] {
+                "מסעדות ומזון", "מכירות ושירות לקוחות", "הדרכה וקייטנות",
+                "שליחויות ולוגיסטיקה", "אדמיניסטרציה וכללי", "אחר"
+        };
+        ArrayAdapter<String> workFieldAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_dropdown_item_1line, workFieldsList);
+        etWorkField.setAdapter(workFieldAdapter);
+
+        String[] jobScopeList = new String[] {
+                "משרה מלאה", "משרה חלקית", "משמרות", "פרויקט זמני"
+        };
+        ArrayAdapter<String> scopeAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_dropdown_item_1line, jobScopeList);
+        etJobScope.setAdapter(scopeAdapter);
     }
 
     private void prefillDataIfEditing() {
@@ -126,17 +151,21 @@ public class AddJobFragment extends Fragment {
 
             etCompany.setText(jobToEdit.company);
             etLocation.setText(jobToEdit.location, false);
+            etWorkField.setText(jobToEdit.workField, false);
             etExactAddress.setText(jobToEdit.exactAddress);
             etBusinessDesc.setText(jobToEdit.businessDescription);
 
             etTitle.setText(jobToEdit.title);
+            etJobScope.setText(jobToEdit.jobScope, false);
             etJobDesc.setText(jobToEdit.jobDescription);
             etMinAge.setText(String.valueOf(jobToEdit.minAge));
+            cbRequiresExperience.setChecked(jobToEdit.requiresExperience);
             etPrerequisites.setText(jobToEdit.prerequisites);
             etHours.setText(jobToEdit.hoursAndDays);
             cbFlexibility.setChecked(jobToEdit.flexibilityCommitment);
 
             etSalary.setText(String.valueOf(jobToEdit.salary));
+            cbTravelExpenses.setChecked(jobToEdit.travelExpenses);
             etConditions.setText(jobToEdit.conditions);
             etContactName.setText(jobToEdit.contactName);
             etContactRole.setText(jobToEdit.contactRole);
@@ -149,10 +178,19 @@ public class AddJobFragment extends Fragment {
         btnNext1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (TextUtils.isEmpty(etCompany.getText().toString()) || TextUtils.isEmpty(etLocation.getText().toString())) {
-                    Toast.makeText(getContext(), "חובה להזין לפחות שם עסק ועיר", Toast.LENGTH_SHORT).show();
+                if (TextUtils.isEmpty(etCompany.getText().toString())) {
+                    Toast.makeText(getContext(), "חובה להזין שם עסק", Toast.LENGTH_SHORT).show();
                     return;
                 }
+                if (TextUtils.isEmpty(etLocation.getText().toString())) {
+                    Toast.makeText(getContext(), "חובה להזין עיר", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (TextUtils.isEmpty(etWorkField.getText().toString())) {
+                    Toast.makeText(getContext(), "חובה לבחור תחום עבודה", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 page1.setVisibility(View.GONE);
                 page2.setVisibility(View.VISIBLE);
 
@@ -185,6 +223,11 @@ public class AddJobFragment extends Fragment {
                     Toast.makeText(getContext(), "חובה לסמן התחייבות לגמישות מול בני הנוער", Toast.LENGTH_SHORT).show();
                     return;
                 }
+                if (TextUtils.isEmpty(etJobScope.getText().toString())) {
+                    Toast.makeText(getContext(), "חובה לבחור היקף משרה", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 page2.setVisibility(View.GONE);
                 page3.setVisibility(View.VISIBLE);
 
@@ -222,8 +265,12 @@ public class AddJobFragment extends Fragment {
         int age = 0;
         try {
             age = Integer.parseInt(etMinAge.getText().toString());
-            if (age < 14 || age > 18) {
-                Toast.makeText(getContext(), "הגיל המינימלי חייב להיות בין 14 ל-18", Toast.LENGTH_SHORT).show();
+            if (age < 14) {
+                Toast.makeText(getContext(), "הגיל המינימלי חייב להיות לפחות 14", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (age > 18) {
+                Toast.makeText(getContext(), "הגיל המינימלי חייב להיות עד 18", Toast.LENGTH_SHORT).show();
                 return;
             }
         } catch (NumberFormatException e) {
@@ -245,22 +292,25 @@ public class AddJobFragment extends Fragment {
 
         String company = etCompany.getText().toString().trim();
         String location = etLocation.getText().toString().trim();
+        String workField = etWorkField.getText().toString().trim();
         String address = etExactAddress.getText().toString().trim();
         String busDesc = etBusinessDesc.getText().toString().trim();
 
         String title = etTitle.getText().toString().trim();
+        String jobScope = etJobScope.getText().toString().trim();
         String jobDesc = etJobDesc.getText().toString().trim();
+        boolean requiresExperience = cbRequiresExperience.isChecked();
         String prereq = etPrerequisites.getText().toString().trim();
         String hours = etHours.getText().toString().trim();
         boolean isFlexible = cbFlexibility.isChecked();
 
+        boolean travelExpenses = cbTravelExpenses.isChecked();
         String cond = etConditions.getText().toString().trim();
         String cName = etContactName.getText().toString().trim();
         String cRole = etContactRole.getText().toString().trim();
         String cPhone = etContactPhone.getText().toString().trim();
         String busId = etBusinessId.getText().toString().trim();
 
-        // Removed Ternary Logic for ID generation
         String jobId;
         if (jobToEdit != null) {
             jobId = jobToEdit.jobId;
@@ -268,7 +318,6 @@ public class AddJobFragment extends Fragment {
             jobId = mDatabase.push().getKey();
         }
 
-        // Removed Ternary Logic for Owner ID
         String ownerId;
         if (jobToEdit != null) {
             ownerId = jobToEdit.ownerId;
@@ -276,11 +325,15 @@ public class AddJobFragment extends Fragment {
             ownerId = "";
         }
 
-        if (ownerId.isEmpty() && FirebaseAuth.getInstance().getCurrentUser() != null) {
-            ownerId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        if (ownerId.isEmpty()) {
+            if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+                ownerId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+            }
         }
 
-        Job newJob = new Job(company, location, address, busDesc, title, jobDesc, age, prereq, hours, isFlexible, salary, cond, cName, cRole, cPhone, busId, ownerId, jobId);
+        Job newJob = new Job(company, location, address, busDesc, title, jobDesc, age, prereq, hours, isFlexible,
+                jobScope, travelExpenses, workField, requiresExperience,
+                salary, cond, cName, cRole, cPhone, busId, ownerId, jobId);
 
         if (jobId != null) {
             mDatabase.child(jobId).setValue(newJob).addOnCompleteListener(new OnCompleteListener<Void>() {
