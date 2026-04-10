@@ -26,9 +26,9 @@ import com.google.firebase.database.FirebaseDatabase;
  * Purpose: Manages the user profile screen, displaying user info and a dynamic settings menu.
  * * Methods and Actions List:
  * 1. onCreateView - Inflates the layout for the profile screen.
- * 2. onViewCreated - Maps all UI elements and sets explicit click listeners for menu rows.
- * 3. fetchUserProfile - Retrieves the connected user's details from Firebase.
- * 4. updateUI - Populates the header and dynamically hides/shows menu rows based on user type (Youth/Business).
+ * 2. onViewCreated - Maps UI elements and sets explicit click listeners for the remaining menu rows.
+ * 3. fetchUserProfile - Retrieves the connected user's details from Firebase Realtime Database.
+ * 4. updateUI - Populates the header and dynamically hides/shows the business code row based on user type.
  * 5. performLogout - Securely logs out the user and clears navigation history.
  */
 public class ProfileFragment extends Fragment {
@@ -36,8 +36,8 @@ public class ProfileFragment extends Fragment {
     private TextView tvProfileName, tvProfileEmail, tvProfileTypeBadge;
     private TextView tvRowJobsText, tvRowBusinessCodeText;
 
-    private LinearLayout rowEditProfile, rowJobs, rowCv, rowBusinessCode, rowContact, rowAbout, rowRights, rowLogout;
-    private View dividerCv, dividerBusinessCode;
+    private LinearLayout rowEditProfile, rowJobs, rowBusinessCode, rowAbout, rowRights, rowLogout;
+    private View dividerBusinessCode;
 
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
@@ -70,12 +70,11 @@ public class ProfileFragment extends Fragment {
         rowEditProfile = view.findViewById(R.id.rowEditProfile);
         rowJobs = view.findViewById(R.id.rowJobs);
         tvRowJobsText = view.findViewById(R.id.tvRowJobsText);
-        rowCv = view.findViewById(R.id.rowCv);
-        dividerCv = view.findViewById(R.id.dividerCv);
+
         rowBusinessCode = view.findViewById(R.id.rowBusinessCode);
         tvRowBusinessCodeText = view.findViewById(R.id.tvRowBusinessCodeText);
         dividerBusinessCode = view.findViewById(R.id.dividerBusinessCode);
-        rowContact = view.findViewById(R.id.rowContact);
+
         rowAbout = view.findViewById(R.id.rowAbout);
         rowRights = view.findViewById(R.id.rowRights);
         rowLogout = view.findViewById(R.id.rowLogout);
@@ -111,25 +110,6 @@ public class ProfileFragment extends Fragment {
                                 .commit();
                     }
                 }
-            }
-        });
-
-        rowCv.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (getActivity() != null) {
-                    getActivity().getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.mainFragmentContainer, new MyCvsFragment())
-                            .addToBackStack(null)
-                            .commit();
-                }
-            }
-        });
-
-        rowContact.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getContext(), "Contact page coming soon...", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -221,8 +201,7 @@ public class ProfileFragment extends Fragment {
 
         if ("עסק".equals(userProfile.type)) {
             tvRowJobsText.setText("ניהול המשרות שלי");
-            rowCv.setVisibility(View.GONE);
-            dividerCv.setVisibility(View.GONE);
+
             rowBusinessCode.setVisibility(View.VISIBLE);
             dividerBusinessCode.setVisibility(View.VISIBLE);
 
@@ -238,8 +217,6 @@ public class ProfileFragment extends Fragment {
 
         } else {
             tvRowJobsText.setText("המשרות ששמרתי");
-            rowCv.setVisibility(View.VISIBLE);
-            dividerCv.setVisibility(View.VISIBLE);
             rowBusinessCode.setVisibility(View.GONE);
             dividerBusinessCode.setVisibility(View.GONE);
         }

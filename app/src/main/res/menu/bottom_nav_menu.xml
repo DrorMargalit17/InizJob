@@ -5,10 +5,6 @@
         android:icon="@drawable/ic_home"
         android:title="בית" />
     <item
-        android:id="@+id/nav_jobs"
-        android:icon="@drawable/ic_work"
-        android:title="עבודות מזדמנות" />
-    <item
         android:id="@+id/nav_cv"
         android:icon="@drawable/ic_description"
         android:title="קורות חיים" />
