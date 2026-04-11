@@ -1,23 +1,39 @@
 package com.example.inizjob;
 
-public class User {
-    // Public variables so Firebase can easily read and write them
-    public String fullName;
-    public String email;
-    public String phone;
-    public String type; // "נוער" (Youth) or "עסק" (Business)
-    public String businessCode; // Relevant only for business
+import java.io.Serializable;
 
-    // Empty constructor - mandatory for Firebase!
+/*
+ * Class: User
+ * Purpose: Data model representing a user in the system.
+ * Contains both Youth and Business fields.
+ * * Fields:
+ * - fullName: User's name or business name.
+ * - email: User's login email.
+ * - phone: Contact number.
+ * - type: "Youth" or "Business". (Updated to English logic).
+ * - businessCode: Relevant only for Business users.
+ * - birthDate: Relevant only for Youth users.
+ */
+public class User implements Serializable {
+    public String fullName;//User's name
+    public String email;//User's email
+    public String phone; //User's phone Number
+    public String type; //User's type - "Business" or "Youth"
+    public String businessCode; //Only for Business users - confirming business code
+    //public String birthDate; //Only for Youth users - confirming birth date
+
+
     public User() {
+        //empty constructor for Firebase
     }
 
-    // Full constructor for our convenience
-    public User(String fullName, String email, String phone, String type, String businessCode) {
+    //constructor of a user for Firebase
+    public User(String fullName, String email, String phone, String type, String businessCode, String birthDate) {
         this.fullName = fullName;
         this.email = email;
         this.phone = phone;
         this.type = type;
         this.businessCode = businessCode;
+        //this.birthDate = birthDate;
     }
 }

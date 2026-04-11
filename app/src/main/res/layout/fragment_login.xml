@@ -3,10 +3,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     android:orientation="vertical"
     android:padding="24dp"
-    android:background="@color/white"
-    android:gravity="center_horizontal">
+    android:gravity="center_horizontal"
+    android:layoutDirection="rtl">
 
     <Space android:layout_width="match_parent" android:layout_height="30dp"/>
 
@@ -15,7 +16,7 @@
         android:layout_height="50dp"
         android:background="@drawable/bg_toggle_container"
         android:orientation="horizontal"
-        android:layout_marginBottom="40dp">
+        android:layout_marginBottom="30dp">
 
         <TextView
             android:id="@+id/toggleYouth"
@@ -91,7 +92,7 @@
         app:boxStrokeColor="@color/brand_purple"
         android:visibility="gone"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        android:layout_marginBottom="24dp">
+        android:layout_marginBottom="16dp">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etBusinessCode"
@@ -100,10 +101,16 @@
             android:inputType="number"/>
     </com.google.android.material.textfield.TextInputLayout>
 
-    <Space android:layout_width="match_parent" android:layout_height="20dp"/>
+    <CheckBox
+        android:id="@+id/cbStayConnected"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="השאר אותי מחובר"
+        android:textColor="@color/brand_purple"
+        android:layout_marginBottom="24dp"/>
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnLoginAction"
+        android:id="@+id/btnLogin"
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:text="התחבר"
