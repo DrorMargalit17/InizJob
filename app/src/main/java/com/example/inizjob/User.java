@@ -20,7 +20,7 @@ public class User implements Serializable {
     public String phone; //User's phone Number
     public String type; //User's type - "Business" or "Youth"
     public String businessCode; //Only for Business users - confirming business code
-    //public String birthDate; //Only for Youth users - confirming birth date
+    public String birthDate; //Only for Youth users - confirming birth date
 
 
     public User() {
@@ -34,6 +34,6 @@ public class User implements Serializable {
         this.phone = phone;
         this.type = type;
         this.businessCode = businessCode;
-        //this.birthDate = birthDate;
+        this.birthDate = birthDate;
     }
 }
