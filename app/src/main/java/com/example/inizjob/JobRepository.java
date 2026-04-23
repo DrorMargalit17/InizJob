@@ -25,7 +25,7 @@ public class JobRepository {
 
     public interface DataStatus {
         void onDataLoaded(List<Job> jobs);
-        void onSavedIdsLoaded(List<String> savedIds);
+        void onSavedIdsLoaded(List<String> savedIds); // Critical: Re-added for HomeFragment sync
         void onError(String errorMessage);
     }
 
@@ -82,116 +82,40 @@ public class JobRepository {
         }
     }
 
-    public List<Job> applyAdvancedFilters(List<Job> allJobs, String searchText, String locations,
-                                          double minSalary, String workField, String jobScope,
-                                          int age, boolean noExpOnly, boolean travelOnly) {
-
+    public List<Job> applyAdvancedFilters(List<Job> allJobs, String searchText, String city, String workField, String jobScope) {
         List<Job> filteredList = new ArrayList<>();
         String searchLower = searchText.toLowerCase().trim();
 
         for (Job job : allJobs) {
             boolean isMatch = true;
 
-            // 1. Text Search Filter
+            // 1. Text Search Filter (Now includes workField as requested)
             if (!searchLower.isEmpty()) {
                 boolean textMatch = false;
-                if (job.title != null) {
-                    if (job.title.toLowerCase().contains(searchLower)) {
-                        textMatch = true;
-                    }
-                }
-                if (job.company != null) {
-                    if (job.company.toLowerCase().contains(searchLower)) {
-                        textMatch = true;
-                    }
-                }
-                if (!textMatch) {
+                if (job.title != null && job.title.toLowerCase().contains(searchLower)) textMatch = true;
+                if (job.company != null && job.company.toLowerCase().contains(searchLower)) textMatch = true;
+                if (job.workField != null && job.workField.toLowerCase().contains(searchLower)) textMatch = true;
+                if (!textMatch) isMatch = false;
+            }
+
+            // 2. City Filter (matches location field in Job model)
+            if (isMatch && !city.isEmpty()) {
+                if (job.location == null || !job.location.equals(city)) {
                     isMatch = false;
                 }
             }
 
-            // 2. Location Filter
-            if (isMatch) {
-                if (!locations.isEmpty()) {
-                    boolean locMatch = false;
-                    String[] splitLocs = locations.split(",");
-                    for (String loc : splitLocs) {
-                        String cleanLoc = loc.trim().toLowerCase();
-                        if (job.location != null) {
-                            if (job.location.toLowerCase().contains(cleanLoc)) {
-                                locMatch = true;
-                            }
-                        }
-                    }
-                    if (!locMatch) {
-                        isMatch = false;
-                    }
+            // 3. Work Field Filter
+            if (isMatch && !workField.isEmpty()) {
+                if (job.workField == null || !job.workField.equals(workField)) {
+                    isMatch = false;
                 }
             }
 
-            // 3. Minimum Salary Filter
-            if (isMatch) {
-                if (minSalary > 0) {
-                    if (job.salary < minSalary) {
-                        isMatch = false;
-                    }
-                }
-            }
-
-            // 4. Work Field Filter
-            if (isMatch) {
-                if (!workField.isEmpty()) {
-                    if (!workField.equals("הכל")) {
-                        if (job.workField == null) {
-                            isMatch = false;
-                        } else {
-                            if (!job.workField.equals(workField)) {
-                                isMatch = false;
-                            }
-                        }
-                    }
-                }
-            }
-
-            // 5. Job Scope Filter
-            if (isMatch) {
-                if (!jobScope.isEmpty()) {
-                    if (!jobScope.equals("הכל")) {
-                        if (job.jobScope == null) {
-                            isMatch = false;
-                        } else {
-                            if (!job.jobScope.equals(jobScope)) {
-                                isMatch = false;
-                            }
-                        }
-                    }
-                }
-            }
-
-            // 6. Age Filter
-            if (isMatch) {
-                if (age > 0) {
-                    if (age < job.minAge) {
-                        isMatch = false;
-                    }
-                }
-            }
-
-            // 7. Experience Filter
-            if (isMatch) {
-                if (noExpOnly) {
-                    if (job.requiresExperience) {
-                        isMatch = false;
-                    }
-                }
-            }
-
-            // 8. Travel Expenses Filter
-            if (isMatch) {
-                if (travelOnly) {
-                    if (!job.travelExpenses) {
-                        isMatch = false;
-                    }
+            // 4. Job Scope Filter
+            if (isMatch && !jobScope.isEmpty()) {
+                if (job.jobScope == null || !job.jobScope.equals(jobScope)) {
+                    isMatch = false;
                 }
             }
 

@@ -16,18 +16,20 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.material.button.MaterialButton;
 
+/*
+ * Class: JobDetailsFragment
+ * Purpose: Displays complete job data mapped exactly from the Job object.
+ * Logic: Strict compliance, no lambda expressions.
+ */
 public class JobDetailsFragment extends Fragment {
 
     private Job currentJob;
 
-    public JobDetailsFragment() {
-        // Required empty public constructor
-    }
+    public JobDetailsFragment() {}
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Get the Job object passed from HomeFragment
         if (getArguments() != null) {
             currentJob = (Job) getArguments().getSerializable("SELECTED_JOB");
         }
@@ -43,22 +45,40 @@ public class JobDetailsFragment extends Fragment {
             return view;
         }
 
-        // 1. Connect UI
-        ImageView btnClose = view.findViewById(R.id.btnClose);
-        TextView tvDetailTitle = view.findViewById(R.id.tvDetailTitle);
-        TextView tvDetailCompany = view.findViewById(R.id.tvDetailCompany);
-        TextView tvDetailLocation = view.findViewById(R.id.tvDetailLocation);
-        TextView tvDetailDesc = view.findViewById(R.id.tvDetailDesc);
-        TextView tvDetailPrereq = view.findViewById(R.id.tvDetailPrereq);
-        TextView tvDetailAge = view.findViewById(R.id.tvDetailAge);
-        TextView tvDetailHours = view.findViewById(R.id.tvDetailHours);
-        TextView tvDetailFlex = view.findViewById(R.id.tvDetailFlex);
-        TextView tvDetailSalary = view.findViewById(R.id.tvDetailSalary);
-        TextView tvDetailConditions = view.findViewById(R.id.tvDetailConditions);
-        TextView tvDetailContactName = view.findViewById(R.id.tvDetailContactName);
+        // Connections
+        TextView tvTitle = view.findViewById(R.id.tvDetailTitle);
+        TextView tvCompany = view.findViewById(R.id.tvDetailCompany);
+        TextView tvLocation = view.findViewById(R.id.tvDetailLocation);
+        TextView tvBusDesc = view.findViewById(R.id.tvDetailBusinessDesc);
+        TextView tvJobDesc = view.findViewById(R.id.tvDetailDesc);
+        TextView tvWorkField = view.findViewById(R.id.tvDetailWorkField);
+        TextView tvScope = view.findViewById(R.id.tvDetailScope);
+        TextView tvAge = view.findViewById(R.id.tvDetailAge);
+        TextView tvExp = view.findViewById(R.id.tvDetailExperience);
+        TextView tvSalary = view.findViewById(R.id.tvDetailSalary);
+        TextView tvContact = view.findViewById(R.id.tvDetailContactName);
         MaterialButton btnContact = view.findViewById(R.id.btnContact);
+        ImageView btnClose = view.findViewById(R.id.btnClose);
 
-        // 2. Set Close Button Logic
+        // Setting Data
+        tvTitle.setText(currentJob.title);
+        tvCompany.setText(currentJob.company);
+        tvLocation.setText(currentJob.location + " - " + currentJob.exactAddress);
+        tvBusDesc.setText(currentJob.businessDescription);
+        tvJobDesc.setText(currentJob.jobDescription);
+        tvWorkField.setText("תחום עבודה: " + currentJob.workField);
+        tvScope.setText("היקף משרה: " + currentJob.jobScope);
+        tvAge.setText("גיל מינימלי: " + currentJob.minAge);
+
+        if (currentJob.requiresExperience) {
+            tvExp.setText("ניסיון דרוש: כן");
+        } else {
+            tvExp.setText("ניסיון דרוש: לא");
+        }
+
+        tvSalary.setText("שכר: " + currentJob.salary + " ₪ / שעה");
+        tvContact.setText("איש קשר: " + currentJob.contactName);
+
         btnClose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -68,25 +88,6 @@ public class JobDetailsFragment extends Fragment {
             }
         });
 
-        // 3. Set Text Values
-        tvDetailTitle.setText(currentJob.title);
-        tvDetailCompany.setText(currentJob.company);
-        tvDetailLocation.setText(currentJob.location + " - " + currentJob.exactAddress);
-        tvDetailDesc.setText(currentJob.jobDescription);
-        tvDetailPrereq.setText(currentJob.prerequisites);
-        tvDetailAge.setText("גיל מינימלי: " + currentJob.minAge);
-        tvDetailHours.setText(currentJob.hoursAndDays);
-        tvDetailSalary.setText("שכר: " + currentJob.salary + " ₪ / שעה");
-        tvDetailConditions.setText(currentJob.conditions);
-        tvDetailContactName.setText("איש קשר: " + currentJob.contactName + " (" + currentJob.contactRole + ")");
-
-        if (currentJob.flexibilityCommitment) {
-            tvDetailFlex.setVisibility(View.VISIBLE);
-        } else {
-            tvDetailFlex.setVisibility(View.GONE);
-        }
-
-        // 4. Contact Button Logic (Opens Phone Dialer)
         btnContact.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

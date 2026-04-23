@@ -42,17 +42,28 @@
                 android:layout_height="wrap_content"
                 android:text="שם העסק"
                 android:textColor="#424242"
-                android:textSize="18sp"
+                android:textSize="20sp"
+                android:textStyle="bold"
                 android:layout_marginTop="4dp" />
 
             <TextView
                 android:id="@+id/tvDetailLocation"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="מיקום וכתובת מדויקת"
+                android:text="עיר - כתובת מדויקת"
                 android:textColor="#757575"
                 android:textSize="16sp"
                 android:layout_marginTop="4dp" />
+
+            <TextView
+                android:id="@+id/tvDetailBusinessDesc"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="תיאור העסק..."
+                android:textColor="#616161"
+                android:textSize="15sp"
+                android:layout_marginTop="8dp"
+                android:lineSpacingExtra="2dp" />
 
             <View
                 android:layout_width="match_parent"
@@ -78,31 +89,49 @@
                 android:textColor="#424242"
                 android:textSize="16sp"
                 android:lineSpacingExtra="4dp"
-                android:layout_marginBottom="24dp" />
+                android:layout_marginBottom="20dp" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="דרישות המשרה"
+                android:text="דרישות ומאפיינים"
                 android:textColor="@color/black"
                 android:textSize="20sp"
                 android:textStyle="bold"
                 android:layout_marginBottom="8dp"/>
 
             <TextView
-                android:id="@+id/tvDetailPrereq"
+                android:id="@+id/tvDetailWorkField"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="דרישות קדם..."
+                android:text="תחום עבודה: "
                 android:textColor="#424242"
                 android:textSize="16sp"
-                android:layout_marginBottom="8dp" />
+                android:layout_marginBottom="6dp" />
+
+            <TextView
+                android:id="@+id/tvDetailScope"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="היקף משרה: "
+                android:textColor="#424242"
+                android:textSize="16sp"
+                android:layout_marginBottom="6dp" />
 
             <TextView
                 android:id="@+id/tvDetailAge"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="גיל מינימלי: 16"
+                android:text="גיל מינימלי: "
+                android:textColor="#424242"
+                android:textSize="16sp"
+                android:layout_marginBottom="6dp" />
+
+            <TextView
+                android:id="@+id/tvDetailExperience"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="ניסיון דרוש: "
                 android:textColor="#424242"
                 android:textSize="16sp"
                 android:textStyle="bold"
@@ -111,35 +140,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="שעות וימים"
-                android:textColor="@color/black"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:layout_marginBottom="8dp"/>
-
-            <TextView
-                android:id="@+id/tvDetailHours"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="תיאור שעות..."
-                android:textColor="#424242"
-                android:textSize="16sp"
-                android:layout_marginBottom="8dp" />
-
-            <TextView
-                android:id="@+id/tvDetailFlex"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="✅ בעל העסק מתחייב לגמישות בשעות בית ספר ומבחנים"
-                android:textColor="#2E7D32"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:layout_marginBottom="24dp" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="שכר ותנאים"
+                android:text="שכר"
                 android:textColor="@color/black"
                 android:textSize="20sp"
                 android:textStyle="bold"
@@ -153,15 +154,6 @@
                 android:textColor="#1A237E"
                 android:textSize="18sp"
                 android:textStyle="bold"
-                android:layout_marginBottom="8dp" />
-
-            <TextView
-                android:id="@+id/tvDetailConditions"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="תנאים נלווים..."
-                android:textColor="#424242"
-                android:textSize="16sp"
                 android:layout_marginBottom="30dp" />
 
         </LinearLayout>
@@ -187,7 +179,7 @@
                 android:id="@+id/tvDetailContactName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="איש קשר: דוד (מנהל משמרת)"
+                android:text="איש קשר: "
                 android:textSize="14sp"
                 android:textColor="#424242"/>
         </LinearLayout>

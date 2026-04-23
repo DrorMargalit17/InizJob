@@ -19,11 +19,7 @@ import java.util.List;
 
 /*
  * Class: ManageJobAdapter
- * Purpose: Binds job data to the RecyclerView in the MyJobsFragment for editing and deleting.
- * * Methods and Actions List:
- * 1. onCreateViewHolder - Inflates the layout for a single job item.
- * 2. onBindViewHolder - Populates data and handles Edit/Delete button clicks.
- * 3. getItemCount - Returns the total number of items in the list.
+ * Purpose: Binds job data to the RecyclerView for business owners to manage their posts.
  */
 public class ManageJobAdapter extends RecyclerView.Adapter<ManageJobAdapter.ManageViewHolder> {
 
@@ -52,7 +48,9 @@ public class ManageJobAdapter extends RecyclerView.Adapter<ManageJobAdapter.Mana
     public void onBindViewHolder(@NonNull ManageViewHolder holder, int position) {
         Job job = jobList.get(position);
         holder.tvManageTitle.setText(job.title);
-        holder.tvManageLocation.setText(job.location);
+
+        // Fix: Use exactAddress instead of location
+        holder.tvManageLocation.setText(job.exactAddress);
 
         holder.btnEditJob.setOnClickListener(new View.OnClickListener() {
             @Override

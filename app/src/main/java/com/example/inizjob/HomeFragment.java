@@ -52,11 +52,8 @@ public class HomeFragment extends Fragment {
     private JobRepository repository;
     private DatabaseReference mUserRef;
 
-    // Filter state variables
-    private String filterLocs = "", filterField = "", filterScope = "";
-    private double filterSalary = 0;
-    private int filterAge = 0;
-    private boolean filterNoExp = false, filterTravel = false;
+    // Filter state variables for the simplified FilterSystem
+    private String filterCity = "", filterField = "", filterScope = "";
 
     public HomeFragment() {
         // Required empty constructor
@@ -79,13 +76,12 @@ public class HomeFragment extends Fragment {
         fabAddJob = view.findViewById(R.id.fabAddJob);
         btnOpenAdvancedFilters = view.findViewById(R.id.btnOpenAdvancedFilters);
 
-        //sets recycleView to be horizontal and reverse
+        // Sets recycleView to be horizontal and reverse (RTL support)
         rvHorizontalJobs.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, true));
 
-        //connects between job data to visual cards of jobs
+        // Connects between job data to visual cards of jobs
         jobAdapter = new JobAdapter(new ArrayList<Job>(), savedJobIds, new JobAdapter.OnItemClickListener() {
             @Override
-
             /**
              * Navigates to JobDetailsFragment when a job is clicked.
              * - Packs the selected Job object into a Bundle.
@@ -106,7 +102,7 @@ public class HomeFragment extends Fragment {
                     getActivity().getSupportFragmentManager().beginTransaction()
                             .replace(R.id.mainFragmentContainer, detailsFragment) // Switch to details view
                             .addToBackStack(null)// Enable "Back" button functionality
-                            .commit(); //Execute the change
+                            .commit(); // Execute the change
                 }
             }
         }, new JobAdapter.OnFavoriteClickListener() {
@@ -124,6 +120,7 @@ public class HomeFragment extends Fragment {
                 }
             }
         });
+
         /**
          * Finalizes the HomeFragment setup:
          * 1. Attaches the initialized adapter to the RecyclerView.
@@ -144,22 +141,28 @@ public class HomeFragment extends Fragment {
         btnOpenAdvancedFilters.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FilterBottomSheetFragment filterSheet = new FilterBottomSheetFragment(new FilterBottomSheetFragment.FilterListener() {
+                // Initializing the new FilterSystemFragment with its specific listener
+                FilterSystemFragment filterSheet = new FilterSystemFragment();
+                filterSheet.setFilterSystemListener(new FilterSystemFragment.FilterSystemListener() {
                     @Override
-                    public void onApplyFilters(String locs, double salary, String field, String scope, int age, boolean noExp, boolean travel) {
-                        filterLocs = locs; filterSalary = salary; filterField = field;
-                        filterScope = scope; filterAge = age; filterNoExp = noExp; filterTravel = travel;
+                    public void onFiltersApplied(String city, String workField, String jobScope) {
+                        // Store the selected simplified criteria
+                        filterCity = city;
+                        filterField = workField;
+                        filterScope = jobScope;
                         refreshDisplayList();
                     }
+
                     @Override
                     public void onClearFilters() {
-                        filterLocs = ""; filterSalary = 0; filterField = "";
-                        filterScope = ""; filterAge = 0; filterNoExp = false; filterTravel = false;
-                        etSearchJobs.setText("");
-                        refreshDisplayList();
+                        // Reset all filter criteria and search text
+                        filterCity = "";
+                        filterField = "";
+                        filterScope = "";
+                        etSearchJobs.setText(""); // This will trigger the TextWatcher and refresh the list
                     }
                 });
-                filterSheet.show(getChildFragmentManager(), "FilterSheet");
+                filterSheet.show(getChildFragmentManager(), "FilterSystemSheet");
             }
         });
 
@@ -184,29 +187,27 @@ public class HomeFragment extends Fragment {
 
     private void loadUserData() {
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-            //gets user's Id from firebase
+            // Gets user's Id from firebase
             String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
             // Access the specific user node in the database
             mUserRef.child(uid).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<DataSnapshot> task) {
-                    if (task.isSuccessful()) {
+                    if (task.isSuccessful() && task.getResult() != null) {
                         DataSnapshot snapshot = task.getResult();
-                        if (snapshot != null) {
-                            if (snapshot.exists()) {
-                                // Set personalized welcome message
-                                String fullName = snapshot.child("fullName").getValue(String.class);
-                                if (fullName != null) {
-                                    tvGreeting.setText("שלום " + fullName + ",\nאיזו עבודה תרצה לחפש היום?");
-                                }
+                        if (snapshot.exists()) {
+                            // Set personalized welcome message
+                            String fullName = snapshot.child("fullName").getValue(String.class);
+                            if (fullName != null) {
+                                tvGreeting.setText("שלום " + fullName + ",\nאיזו עבודה תרצה לחפש היום?");
+                            }
 
-                                // Toggle FAB visibility based on user account type
-                                String type = snapshot.child("type").getValue(String.class);
-                                if ("עסק".equals(type)) {
-                                    fabAddJob.setVisibility(View.VISIBLE);
-                                } else {
-                                    fabAddJob.setVisibility(View.GONE);
-                                }
+                            // Toggle FAB visibility based on user account type
+                            String type = snapshot.child("type").getValue(String.class);
+                            if ("עסק".equals(type)) {
+                                fabAddJob.setVisibility(View.VISIBLE);
+                            } else {
+                                fabAddJob.setVisibility(View.GONE);
                             }
                         }
                     }
@@ -224,11 +225,13 @@ public class HomeFragment extends Fragment {
                 allJobsList = jobs;
                 refreshDisplayList();
             }
+
             @Override
             public void onSavedIdsLoaded(List<String> savedIds) {
                 // Update the adapter's knowledge of which jobs are favorited
                 jobAdapter.updateSavedJobs(savedIds);
             }
+
             @Override
             public void onError(String error) {
                 // Notify the user in case of a data retrieval failure
@@ -250,9 +253,14 @@ public class HomeFragment extends Fragment {
     }
 
     private void refreshDisplayList() {
-        // Apply all active filters to the master list of jobs
-        List<Job> filtered = repository.applyAdvancedFilters(allJobsList, etSearchJobs.getText().toString(),
-                filterLocs, filterSalary, filterField, filterScope, filterAge, filterNoExp, filterTravel);
+        // Apply all active filters to the master list of jobs using exactly 5 parameters
+        List<Job> filtered = repository.applyAdvancedFilters(
+                allJobsList,
+                etSearchJobs.getText().toString(),
+                filterCity,
+                filterField,
+                filterScope
+        );
         // Update the adapter with the filtered results to refresh the UI
         jobAdapter.filterList(filtered);
     }
