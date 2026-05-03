@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.CheckBox;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,11 +29,13 @@ import com.google.firebase.database.FirebaseDatabase;
  * Class: AddJobFragment
  * Purpose: Strict implementation of a 3-step job posting wizard.
  * Logic: Fully synchronized with Job model, standard UI, and no lambda expressions.
+ * Includes a back navigation button for improved user experience.
  */
 public class AddJobFragment extends Fragment {
 
     private LinearLayout page1, page2, page3;
     private TextView tvWizardTitle;
+    private ImageButton btnBackAddJob;
 
     private TextInputEditText etCompany, etExactAddress, etBusinessDesc;
     private AutoCompleteTextView etLocation , etWorkField;
@@ -64,11 +67,12 @@ public class AddJobFragment extends Fragment {
 
         mDatabase = FirebaseDatabase.getInstance("https://inizjob4586-default-rtdb.firebaseio.com/").getReference("jobs");
 
-        // Initialization
+        // UI Initialization
         page1 = view.findViewById(R.id.page1);
         page2 = view.findViewById(R.id.page2);
         page3 = view.findViewById(R.id.page3);
         tvWizardTitle = view.findViewById(R.id.tvWizardTitle);
+        btnBackAddJob = view.findViewById(R.id.btnBackAddJob);
 
         etCompany = view.findViewById(R.id.etCompany);
         etLocation = view.findViewById(R.id.etLocation);
@@ -114,6 +118,16 @@ public class AddJobFragment extends Fragment {
     }
 
     private void setupNavigationButtons() {
+        // Back navigation button listener
+        btnBackAddJob.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (getActivity() != null) {
+                    getActivity().getSupportFragmentManager().popBackStack();
+                }
+            }
+        });
+
         btnNext1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

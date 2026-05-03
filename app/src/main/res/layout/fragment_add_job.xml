@@ -7,18 +7,33 @@
     android:background="@color/background_gray"
     android:layoutDirection="rtl">
 
-    <TextView
-        android:id="@+id/tvWizardTitle"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="שלב 1 מתוך 3: פרטי העסק"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:textColor="@color/brand_purple"
-        android:gravity="center"
-        android:padding="20dp"
+        android:padding="12dp"
         android:background="@color/white"
-        android:elevation="4dp"/>
+        android:elevation="4dp">
+
+        <ImageButton
+            android:id="@+id/btnBackAddJob"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_menu_revert"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:contentDescription="Back" />
+
+        <TextView
+            android:id="@+id/tvWizardTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="שלב 1 מתוך 3: פרטי העסק"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@color/brand_purple"
+            android:layout_centerInParent="true"/>
+    </RelativeLayout>
 
     <ScrollView
         android:layout_width="match_parent"

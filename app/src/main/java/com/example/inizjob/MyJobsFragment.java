@@ -23,6 +23,13 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.List;
 
+/*
+ * Class: MyJobsFragment
+ * Purpose: Retrieves and displays a list of jobs specifically posted by the currently logged-in business user.
+ * * Methods and Actions:
+ * 1. onCreateView - Initializes layout and the ManageJobAdapter for editing and deleting.
+ * 2. loadMyJobs - Queries the "jobs" node in Firebase filtering by the user's ownerId.
+ */
 public class MyJobsFragment extends Fragment {
 
     private RecyclerView rvMyJobs;
@@ -43,7 +50,7 @@ public class MyJobsFragment extends Fragment {
 
         myJobsList = new ArrayList<>();
 
-        // Initialize adapter with the Edit click listener
+        // Initialize adapter with the Edit click listener (Without lambdas)
         adapter = new ManageJobAdapter(getContext(), myJobsList, new ManageJobAdapter.OnJobEditListener() {
             @Override
             public void onEditClick(Job job) {
@@ -75,6 +82,7 @@ public class MyJobsFragment extends Fragment {
         String currentUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DatabaseReference jobsRef = FirebaseDatabase.getInstance("https://inizjob4586-default-rtdb.firebaseio.com/").getReference("jobs");
 
+        // Real-time query to fetch only the jobs where ownerId matches the current user
         Query myJobsQuery = jobsRef.orderByChild("ownerId").equalTo(currentUid);
 
         myJobsQuery.addValueEventListener(new ValueEventListener() {

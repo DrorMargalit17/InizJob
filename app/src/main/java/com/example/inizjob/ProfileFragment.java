@@ -28,7 +28,7 @@ import com.google.firebase.database.FirebaseDatabase;
  * 1. onCreateView - Inflates the layout for the profile screen.
  * 2. onViewCreated - Maps UI elements and sets explicit click listeners for the remaining menu rows.
  * 3. fetchUserProfile - Retrieves the connected user's details from Firebase Realtime Database.
- * 4. updateUI - Populates the header and dynamically hides/shows the business code row based on user type.
+ * 4. updateUI - Populates the header and dynamically hides/shows the appropriate routing text for CVs/Jobs.
  * 5. performLogout - Securely logs out the user and clears navigation history.
  */
 public class ProfileFragment extends Fragment {
@@ -95,10 +95,11 @@ public class ProfileFragment extends Fragment {
         rowJobs.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // Dynamic routing from profile based on user type
                 if ("עסק".equals(currentUserType)) {
                     if (getActivity() != null) {
                         getActivity().getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.mainFragmentContainer, new MyJobsFragment())
+                                .replace(R.id.mainFragmentContainer, new MyCvsFragment())
                                 .addToBackStack(null)
                                 .commit();
                     }
@@ -200,7 +201,8 @@ public class ProfileFragment extends Fragment {
         tvProfileTypeBadge.setText(userProfile.type);
 
         if ("עסק".equals(userProfile.type)) {
-            tvRowJobsText.setText("ניהול המשרות שלי");
+            // Business gets CV access in profile instead of Jobs
+            tvRowJobsText.setText("קורות חיים");
 
             rowBusinessCode.setVisibility(View.VISIBLE);
             dividerBusinessCode.setVisibility(View.VISIBLE);
@@ -216,6 +218,7 @@ public class ProfileFragment extends Fragment {
             }
 
         } else {
+            // Youth gets Saved Jobs access in profile
             tvRowJobsText.setText("המשרות ששמרתי");
             rowBusinessCode.setVisibility(View.GONE);
             dividerBusinessCode.setVisibility(View.GONE);
