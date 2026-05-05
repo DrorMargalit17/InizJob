@@ -77,7 +77,8 @@ public class HomeFragment extends Fragment {
         btnOpenAdvancedFilters = view.findViewById(R.id.btnOpenAdvancedFilters);
 
         // Sets recycleView to be horizontal and reverse (RTL support)
-        rvHorizontalJobs.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, true));
+        // updated to vertical scrolling layout as requested by the user
+        rvHorizontalJobs.setLayoutManager(new LinearLayoutManager(getContext()));
 
         // Connects between job data to visual cards of jobs
         jobAdapter = new JobAdapter(new ArrayList<Job>(), savedJobIds, new JobAdapter.OnItemClickListener() {

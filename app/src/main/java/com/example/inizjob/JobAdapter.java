@@ -102,7 +102,7 @@ public class JobAdapter extends RecyclerView.Adapter<JobAdapter.JobViewHolder> {
 
     public static class JobViewHolder extends RecyclerView.ViewHolder {
         TextView tvJobTitle, tvCompany, tvLocation, tvSalary;
-        ImageView imgJob, btnFavorite;
+        ImageView btnFavorite; // removed imgjob object
 
         public JobViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -110,7 +110,6 @@ public class JobAdapter extends RecyclerView.Adapter<JobAdapter.JobViewHolder> {
             tvCompany = itemView.findViewById(R.id.tvCompany);
             tvLocation = itemView.findViewById(R.id.tvLocation);
             tvSalary = itemView.findViewById(R.id.tvSalary);
-            imgJob = itemView.findViewById(R.id.imgJob);
             btnFavorite = itemView.findViewById(R.id.btnFavorite);
         }
     }
