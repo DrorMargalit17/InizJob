@@ -21,6 +21,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -29,13 +30,13 @@ import com.google.android.gms.tasks.Task;
 import java.util.ArrayList;
 
 /*
- * Class: RegisterFragment
- * Purpose: Handles new user registration.
- * * Methods and Actions List:
- * 1. onCreateView - Initializes layout and UI references, including birth date spinners.
- * 2. populateSpinners - Fills the Day, Month, and Year dropdown menus.
- * 3. performRegistration - Validates form (including date for Youth or Code for Business) and creates a new user.
- * 4. updateToggleUI - Switches visuals based on Youth/Business selection.
+ * class: registerfragment
+ * purpose: handles new user registration.
+ * * methods and actions list:
+ * 1. oncreateview - initializes layout and ui references, including birth date spinners.
+ * 2. populatespinners - fills the day, month, and year dropdown menus.
+ * 3. performregistration - validates form (including date for youth or code for business) and creates a new user.
+ * 4. updatetoggleui - switches visuals based on youth/business selection.
  */
 public class RegisterFragment extends Fragment {
 
@@ -155,21 +156,61 @@ public class RegisterFragment extends Fragment {
         String businessCode = etBusinessCode.getText().toString().trim();
         String birthDate = "";
 
+        //checks that all fields are filled
+        if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password) || TextUtils.isEmpty(fullName) || TextUtils.isEmpty(phone)) {
+            Toast.makeText(getContext(), "Please fill all required fields", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // validate email format using inputvalidator
+        if (!InputValidator.isValidEmail(email)) {
+            Toast.makeText(getContext(), "Please enter a valid email address", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // validate phone format using inputvalidator
+        if (!InputValidator.isValidPhone(phone)) {
+            Toast.makeText(getContext(), "Phone number must contain 9 or 10 digits", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // validate password complexity using inputvalidator
+        if (!InputValidator.isValidPassword(password)) {
+            Toast.makeText(getContext(), "Password must be at least 6 characters, contain uppercase, lowercase, a number, and a special character", Toast.LENGTH_LONG).show();
+            return;
+        }
+
         //checks if user is youth or business
         String type;
         if (isYouthSelected) {
-            type = "נוער";
+            type = User.TYPE_YOUTH; // Fixed to use constants from User class
             // checks that a full date has been selected
             if (spinnerDay.getSelectedItemPosition() == 0 || spinnerMonth.getSelectedItemPosition() == 0 || spinnerYear.getSelectedItemPosition() == 0) {
                 Toast.makeText(getContext(), "Please select a full birth date", Toast.LENGTH_SHORT).show();
                 return;
             }
+
+            try {
+                int day = Integer.parseInt(spinnerDay.getSelectedItem().toString());
+                int month = Integer.parseInt(spinnerMonth.getSelectedItem().toString());
+                int year = Integer.parseInt(spinnerYear.getSelectedItem().toString());
+
+                // Validate age to ensure it is between 14 and 18
+                if (!InputValidator.isValidAge(year, month, day)) {
+                    Toast.makeText(getContext(), "Registration is only allowed for ages 14 to 18", Toast.LENGTH_LONG).show();
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                Toast.makeText(getContext(), "Error reading birth date", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             businessCode = ""; // Clear for youth
             birthDate = spinnerDay.getSelectedItem().toString() + "/" +
                     spinnerMonth.getSelectedItem().toString() + "/" +
                     spinnerYear.getSelectedItem().toString();
         } else {
-            type = "עסק";
+            type = User.TYPE_BUSINESS; // Fixed to use constants from User class
             // checks businessCode field is not empty
             if (TextUtils.isEmpty(businessCode)) {
                 Toast.makeText(getContext(), "Please enter a business code", Toast.LENGTH_SHORT).show();
@@ -178,12 +219,8 @@ public class RegisterFragment extends Fragment {
             birthDate = ""; // Clear for business
         }
 
-        //checks that all fields are filled
-        if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password) || TextUtils.isEmpty(fullName)) {
-            Toast.makeText(getContext(), "Please fill all required fields", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
+        // Disable button to prevent multiple clicks and crashes
+        btnRegister.setEnabled(false);
 
         //Creating final variables to prevent data from changing during the registration process
         final String finalType = type;
@@ -195,9 +232,15 @@ public class RegisterFragment extends Fragment {
                 .addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
+                        // Protect against memory leaks and fragment destruction
+                        if (!isAdded() || getActivity() == null) {
+                            return;
+                        }
+
                         if (task.isSuccessful()) {
                             FirebaseUser firebaseUser = mAuth.getCurrentUser();
                             if (firebaseUser == null) {
+                                btnRegister.setEnabled(true);
                                 return;
                             }
 
@@ -210,15 +253,22 @@ public class RegisterFragment extends Fragment {
                                     .addOnCompleteListener(new OnCompleteListener<Void>() {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> dbTask) {
+                                            // Protect against memory leaks
+                                            if (!isAdded() || getActivity() == null) {
+                                                return;
+                                            }
+
                                             if (dbTask.isSuccessful()) {
                                                 Toast.makeText(getContext(), "Registration Successful!", Toast.LENGTH_LONG).show();
                                                 mAuth.signOut();
+                                                btnRegister.setEnabled(true);
                                                 //return to login
                                                 if (getActivity() instanceof AuthActivity) {
                                                     ((AuthActivity) getActivity()).switchToLogin(isYouthSelected);
                                                 }
                                             } else {
                                                 // notify the user of the failure
+                                                btnRegister.setEnabled(true);
                                                 Toast.makeText(getContext(), "Saving details failed.", Toast.LENGTH_SHORT).show();
                                             }
                                         }
@@ -226,8 +276,14 @@ public class RegisterFragment extends Fragment {
 
                         } else {
                             // notify the user of a failure during registration
+                            btnRegister.setEnabled(true);
                             if (task.getException() != null) {
-                                Toast.makeText(getContext(), "Error: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                                // Check for specific email collision exception
+                                if (task.getException() instanceof FirebaseAuthUserCollisionException) {
+                                    Toast.makeText(getContext(), "This email is already registered. Please login.", Toast.LENGTH_LONG).show();
+                                } else {
+                                    Toast.makeText(getContext(), "Error: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                                }
                             }
                         }
                     }

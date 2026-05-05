@@ -75,7 +75,7 @@ public class LoginFragment extends Fragment {
         etPassword = view.findViewById(R.id.etPassword);
         cbStayConnected = view.findViewById(R.id.cbStayConnected);
 
-        // Set deafult UI state based on isYouthSelected
+        // Set default UI state based on isYouthSelected
         updateToggleUI();
 
         //change to youth
@@ -153,6 +153,11 @@ public class LoginFragment extends Fragment {
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
+                        // Lifecycle safety check
+                        if (!isAdded() || getActivity() == null) {
+                            return;
+                        }
+
                         if (task.isSuccessful()) {
                             checkUserType();
                         } else {
@@ -191,12 +196,30 @@ public class LoginFragment extends Fragment {
                         String userType = snapshot.child("type").getValue(String.class);
 
                         if (userType != null) {
-                            Intent intent = new Intent(getActivity(), MainActivity.class);
-                            intent.putExtra("USER_TYPE", userType);
-                            //clear the screens history so the user can't go back to login
-                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                            startActivity(intent);
-                            getActivity().finish();
+
+                            // Check if the actual user type matches the selected tab
+                            boolean isDbUserYouth = false;
+
+                            if (User.TYPE_YOUTH.equals(userType)) {
+                                isDbUserYouth = true;
+                            } else if (User.TYPE_BUSINESS.equals(userType)) {
+                                isDbUserYouth = false;
+                            }
+
+                            if (isYouthSelected == isDbUserYouth) {
+                                Intent intent = new Intent(getActivity(), MainActivity.class);
+                                intent.putExtra("USER_TYPE", userType);
+                                //clear the screens history so the user can't go back to login
+                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                startActivity(intent);
+                                getActivity().finish();
+                            } else {
+                                // Prevent login if tab mismatch
+                                Toast.makeText(getContext(), "סוג המשתמש אינו תואם ללשונית שנבחרה", Toast.LENGTH_SHORT).show();
+                                mAuth.signOut(); // Disconnect the incorrect user session
+                                btnLogin.setEnabled(true);
+                            }
+
                         } else {
                             // Handle the case where user type is not found in the database
                             Toast.makeText(getContext(), "User type not found", Toast.LENGTH_SHORT).show();

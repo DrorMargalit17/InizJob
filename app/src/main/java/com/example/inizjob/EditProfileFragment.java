@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -34,6 +35,9 @@ public class EditProfileFragment extends Fragment {
     private LinearLayout layoutEditBirthDate; // UI element for birth date
     private Spinner spinnerDay, spinnerMonth, spinnerYear; // UI elements for date selection
     private MaterialButton btnSaveProfile; // UI element for save button
+
+    // UI element for back navigation
+    private ImageButton btnBackEditProfile;
 
     private FirebaseAuth mAuth; // Firebase Authentication instance
     private DatabaseReference mDatabase; // Firebase Realtime Database instance
@@ -64,7 +68,7 @@ public class EditProfileFragment extends Fragment {
         spinnerMonth = view.findViewById(R.id.spinnerEditMonth);
         spinnerYear = view.findViewById(R.id.spinnerEditYear);
         btnSaveProfile = view.findViewById(R.id.btnSaveProfile);
-
+        btnBackEditProfile = view.findViewById(R.id.btnBackEditProfile);
 
         populateSpinners();
         // Load user existing data
@@ -75,6 +79,16 @@ public class EditProfileFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 saveProfileChanges();
+            }
+        });
+
+        // Handle back button click
+        btnBackEditProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (getActivity() != null) {
+                    getActivity().getSupportFragmentManager().popBackStack();
+                }
             }
         });
 

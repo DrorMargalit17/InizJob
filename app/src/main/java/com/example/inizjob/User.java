@@ -15,6 +15,9 @@ import java.io.Serializable;
  * - birthDate: Relevant only for Youth users.
  */
 public class User implements Serializable {
+    // Constants for User Types (Single Source of Truth)
+    public static final String TYPE_YOUTH = "Youth";
+    public static final String TYPE_BUSINESS = "Business";
     public String fullName;//User's name
     public String email;//User's email
     public String phone; //User's phone Number

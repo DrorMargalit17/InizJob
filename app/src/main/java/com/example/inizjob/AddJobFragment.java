@@ -242,19 +242,30 @@ public class AddJobFragment extends Fragment {
         String cPhone = etContactPhone.getText().toString().trim();
         String busId = etBusinessId.getText().toString().trim();
 
-        String jobId = (jobToEdit != null) ? jobToEdit.jobId : mDatabase.push().getKey();
-        String ownerId = (jobToEdit != null) ? jobToEdit.ownerId : FirebaseAuth.getInstance().getCurrentUser().getUid();
+        String jobId;
+        String ownerId;
+
+        if (jobToEdit != null) {
+            jobId = jobToEdit.jobId;
+            ownerId = jobToEdit.ownerId;
+        } else {
+            jobId = mDatabase.push().getKey();
+            ownerId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        }
 
         Job newJob = new Job(company, location, address, busDesc, title, jobDesc, age, jobScope, workField, requiresExp, salary, cName, cRole, cPhone, busId, ownerId, jobId);
 
         mDatabase.child(jobId).setValue(newJob).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
+                // added lifecycle protection to prevent crashes
+                if (!isAdded() || getActivity() == null) {
+                    return;
+                }
+
                 if (task.isSuccessful()) {
                     Toast.makeText(getContext(), "המשרה נשמרה בהצלחה!", Toast.LENGTH_SHORT).show();
-                    if (getActivity() != null) {
-                        getActivity().getSupportFragmentManager().popBackStack();
-                    }
+                    getActivity().getSupportFragmentManager().popBackStack();
                 } else {
                     Toast.makeText(getContext(), "שגיאה בשמירת המשרה", Toast.LENGTH_SHORT).show();
                 }

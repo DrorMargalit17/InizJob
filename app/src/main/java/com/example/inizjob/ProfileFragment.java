@@ -95,8 +95,8 @@ public class ProfileFragment extends Fragment {
         rowJobs.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Dynamic routing from profile based on user type
-                if ("עסק".equals(currentUserType)) {
+                // Dynamic routing from profile based on user type using single source of truth
+                if (User.TYPE_BUSINESS.equals(currentUserType)) {
                     if (getActivity() != null) {
                         getActivity().getSupportFragmentManager().beginTransaction()
                                 .replace(R.id.mainFragmentContainer, new MyCvsFragment())
@@ -174,6 +174,11 @@ public class ProfileFragment extends Fragment {
         mDatabase.child("users").child(uid).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DataSnapshot> task) {
+                // protect against memory leaks and crashes if fragment is closed
+                if (!isAdded() || getActivity() == null) {
+                    return;
+                }
+
                 if (task.isSuccessful()) {
                     DataSnapshot snapshot = task.getResult();
                     if (snapshot != null) {
@@ -198,9 +203,17 @@ public class ProfileFragment extends Fragment {
 
         tvProfileName.setText(userProfile.fullName);
         tvProfileEmail.setText(userProfile.email);
-        tvProfileTypeBadge.setText(userProfile.type);
 
-        if ("עסק".equals(userProfile.type)) {
+        // translate internal type to hebrew for ui display
+        if (User.TYPE_BUSINESS.equals(userProfile.type)) {
+            tvProfileTypeBadge.setText("עסק");
+        } else if (User.TYPE_YOUTH.equals(userProfile.type)) {
+            tvProfileTypeBadge.setText("נוער");
+        } else {
+            tvProfileTypeBadge.setText(userProfile.type);
+        }
+
+        if (User.TYPE_BUSINESS.equals(userProfile.type)) {
             // Business gets CV access in profile instead of Jobs
             tvRowJobsText.setText("קורות חיים");
 

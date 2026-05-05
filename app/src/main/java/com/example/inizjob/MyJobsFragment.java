@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -36,6 +37,9 @@ public class MyJobsFragment extends Fragment {
     private ManageJobAdapter adapter;
     private List<Job> myJobsList;
 
+    // UI element for back navigation
+    private ImageButton btnBackMyJobs;
+
     public MyJobsFragment() {
         // Required empty public constructor
     }
@@ -46,7 +50,18 @@ public class MyJobsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_my_jobs, container, false);
 
         rvMyJobs = view.findViewById(R.id.rvMyJobs);
+        btnBackMyJobs = view.findViewById(R.id.btnBackMyJobs);
         rvMyJobs.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        // Handle back button click
+        btnBackMyJobs.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (getActivity() != null) {
+                    getActivity().getSupportFragmentManager().popBackStack();
+                }
+            }
+        });
 
         myJobsList = new ArrayList<>();
 

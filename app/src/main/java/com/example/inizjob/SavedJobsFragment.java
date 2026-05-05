@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -41,6 +42,9 @@ public class SavedJobsFragment extends Fragment {
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
 
+    // UI element for back navigation
+    private ImageButton btnBackSavedJobs;
+
     public SavedJobsFragment() {
         // Required empty public constructor
     }
@@ -54,7 +58,18 @@ public class SavedJobsFragment extends Fragment {
         mDatabase = FirebaseDatabase.getInstance("https://inizjob4586-default-rtdb.firebaseio.com/").getReference();
 
         rvSavedJobs = view.findViewById(R.id.rvSavedJobs);
+        btnBackSavedJobs = view.findViewById(R.id.btnBackSavedJobs);
         rvSavedJobs.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        // Handle back button click
+        btnBackSavedJobs.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (getActivity() != null) {
+                    getActivity().getSupportFragmentManager().popBackStack();
+                }
+            }
+        });
 
         savedJobsList = new ArrayList<>();
         savedJobIds = new ArrayList<>();

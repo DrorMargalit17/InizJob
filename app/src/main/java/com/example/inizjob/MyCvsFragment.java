@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -40,6 +41,9 @@ public class MyCvsFragment extends Fragment {
     private CvAdapter adapter;
     private List<Cv> cvList;
 
+    // UI element for back navigation
+    private ImageButton btnBackMyCvs;
+
     public MyCvsFragment() {
         // Required empty public constructor
     }
@@ -56,9 +60,20 @@ public class MyCvsFragment extends Fragment {
 
         rvMyCvs = view.findViewById(R.id.rvMyCvs);
         fabAddCv = view.findViewById(R.id.fabAddCv);
+        btnBackMyCvs = view.findViewById(R.id.btnBackMyCvs);
 
         rvMyCvs.setLayoutManager(new LinearLayoutManager(getContext()));
         cvList = new ArrayList<>();
+
+        // Handle back button click
+        btnBackMyCvs.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (getActivity() != null) {
+                    getActivity().getSupportFragmentManager().popBackStack();
+                }
+            }
+        });
 
         // Initialize adapter and handle edit clicks
         adapter = new CvAdapter(getContext(), cvList, new CvAdapter.OnCvEditListener() {

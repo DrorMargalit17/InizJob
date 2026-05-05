@@ -193,6 +193,11 @@ public class HomeFragment extends Fragment {
             mUserRef.child(uid).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<DataSnapshot> task) {
+                    // protect against memory leaks and crashes if fragment is closed
+                    if (!isAdded() || getActivity() == null) {
+                        return;
+                    }
+
                     if (task.isSuccessful() && task.getResult() != null) {
                         DataSnapshot snapshot = task.getResult();
                         if (snapshot.exists()) {
@@ -202,9 +207,9 @@ public class HomeFragment extends Fragment {
                                 tvGreeting.setText("שלום " + fullName + ",\nאיזו עבודה תרצה לחפש היום?");
                             }
 
-                            // Toggle FAB visibility based on user account type
+                            // Toggle FAB visibility based on user account type using single source of truth
                             String type = snapshot.child("type").getValue(String.class);
-                            if ("עסק".equals(type)) {
+                            if (User.TYPE_BUSINESS.equals(type)) {
                                 fabAddJob.setVisibility(View.VISIBLE);
                             } else {
                                 fabAddJob.setVisibility(View.GONE);
@@ -221,6 +226,10 @@ public class HomeFragment extends Fragment {
         repository.fetchAllJobs(new JobRepository.DataStatus() {
             @Override
             public void onDataLoaded(List<Job> jobs) {
+                // protect against crashes
+                if (!isAdded() || getActivity() == null) {
+                    return;
+                }
                 // Update the master list and refresh the filtered display
                 allJobsList = jobs;
                 refreshDisplayList();
@@ -228,6 +237,10 @@ public class HomeFragment extends Fragment {
 
             @Override
             public void onSavedIdsLoaded(List<String> savedIds) {
+                // protect against crashes
+                if (!isAdded() || getActivity() == null) {
+                    return;
+                }
                 // Update the adapter's knowledge of which jobs are favorited
                 jobAdapter.updateSavedJobs(savedIds);
             }
@@ -246,7 +259,13 @@ public class HomeFragment extends Fragment {
             repository.loadSavedJobIds(FirebaseAuth.getInstance().getCurrentUser().getUid(), new JobRepository.DataStatus() {
                 // Ensure the UI reflects the user's latest favorites
                 @Override public void onDataLoaded(List<Job> jobs) {}
-                @Override public void onSavedIdsLoaded(List<String> savedIds) { jobAdapter.updateSavedJobs(savedIds); }
+                @Override public void onSavedIdsLoaded(List<String> savedIds) {
+                    // protect against crashes
+                    if (!isAdded() || getActivity() == null) {
+                        return;
+                    }
+                    jobAdapter.updateSavedJobs(savedIds);
+                }
                 @Override public void onError(String error) {}
             });
         }
