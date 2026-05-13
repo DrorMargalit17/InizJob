@@ -6,9 +6,39 @@
     android:background="@color/background_gray"
     android:layoutDirection="rtl">
 
+    <RelativeLayout
+        android:id="@+id/headerBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:background="@color/white"
+        android:elevation="2dp"
+        android:layout_alignParentTop="true">
+
+        <ImageButton
+            android:id="@+id/btnBackJobDetails"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_menu_revert"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:contentDescription="Back" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="פרטי המשרה"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@color/brand_purple"
+            android:layout_centerInParent="true" />
+    </RelativeLayout>
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_below="@id/headerBar"
         android:layout_above="@id/bottomBar"
         android:fillViewport="true">
 
@@ -17,15 +47,6 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="20dp">
-
-            <ImageView
-                android:id="@+id/btnClose"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:layout_gravity="start"
-                android:layout_marginBottom="8dp"
-                android:src="@android:drawable/ic_menu_close_clear_cancel"
-                app:tint="@color/black" />
 
             <TextView
                 android:id="@+id/tvDetailTitle"
@@ -167,32 +188,47 @@
         android:background="@color/white"
         android:elevation="10dp"
         android:padding="16dp"
-        android:orientation="horizontal">
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvDetailContactName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="איש קשר: "
+            android:textSize="14sp"
+            android:textColor="#424242"
+            android:layout_marginBottom="8dp"/>
 
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:layout_gravity="center_vertical">
-            <TextView
-                android:id="@+id/tvDetailContactName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="איש קשר: "
-                android:textSize="14sp"
-                android:textColor="#424242"/>
-        </LinearLayout>
+            android:orientation="horizontal">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnContact"
-            android:layout_width="wrap_content"
-            android:layout_height="55dp"
-            android:text="צור קשר"
-            android:textSize="16sp"
-            app:backgroundTint="#2E7D32"
-            app:cornerRadius="25dp"
-            app:icon="@android:drawable/ic_menu_call"
-            app:iconGravity="textStart"/>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnContact"
+                android:layout_width="0dp"
+                android:layout_height="55dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                android:text="חייג"
+                android:textSize="16sp"
+                app:backgroundTint="#1A237E"
+                app:cornerRadius="25dp"
+                app:icon="@android:drawable/ic_menu_call"
+                app:iconGravity="textStart"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnApplySMS"
+                android:layout_width="0dp"
+                android:layout_height="55dp"
+                android:layout_weight="2"
+                android:text="הגש מועמדות (SMS)"
+                android:textSize="15sp"
+                app:backgroundTint="#0288D1"
+                app:cornerRadius="25dp"
+                app:icon="@android:drawable/ic_menu_send"
+                app:iconGravity="textStart"
+                android:visibility="gone"/>
+        </LinearLayout>
     </LinearLayout>
 </RelativeLayout>

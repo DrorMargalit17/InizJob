@@ -18,15 +18,7 @@
             android:layout_marginBottom="16dp"
             android:layout_marginTop="20dp">
 
-            <ImageButton
-                android:id="@+id/btnBackMyCvs"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@android:drawable/ic_menu_revert"
-                android:layout_alignParentStart="true"
-                android:layout_centerVertical="true"
-                android:contentDescription="Back" />
+            <!-- removed back arrow imagebutton from the central bottom navigation screen -->
 
             <TextView
                 android:layout_width="wrap_content"

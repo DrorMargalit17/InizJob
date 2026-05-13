@@ -6,6 +6,7 @@ import java.io.Serializable;
  * Class: Cv
  * Purpose: Data model for a Curriculum Vitae object.
  * * Fields:
+ * - cvTitle: The specific purpose/name of this CV (e.g., "Waitressing").
  * - summary: Professional profile/objective.
  * - education: Schools and majors.
  * - experience: Work and volunteering history.
@@ -21,6 +22,8 @@ public class Cv implements Serializable {
     public String phone;
     public String email;
 
+    public String cvTitle;      // כותרת/מטרת קורות החיים
+
     // New Expanded Categories
     public String summary;      // תמצית מקצועית
     public String education;    // השכלה
@@ -35,7 +38,7 @@ public class Cv implements Serializable {
     public Cv() {
     }
 
-    public Cv(String cvId, String ownerId, String fullName, String phone, String email,
+    public Cv(String cvId, String ownerId, String fullName, String phone, String email, String cvTitle,
               String summary, String education, String experience, String skills,
               String achievements, String traits, String uniqueDetail, String generatedText) {
         this.cvId = cvId;
@@ -43,6 +46,7 @@ public class Cv implements Serializable {
         this.fullName = fullName;
         this.phone = phone;
         this.email = email;
+        this.cvTitle = cvTitle;
         this.summary = summary;
         this.education = education;
         this.experience = experience;

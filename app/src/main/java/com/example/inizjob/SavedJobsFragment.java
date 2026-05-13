@@ -74,7 +74,8 @@ public class SavedJobsFragment extends Fragment {
         savedJobsList = new ArrayList<>();
         savedJobIds = new ArrayList<>();
 
-        adapter = new JobAdapter(savedJobsList, savedJobIds, new JobAdapter.OnItemClickListener() {
+        // התיקון כאן: הוספנו את User.TYPE_YOUTH כפרמטר השלישי לאדפטר
+        adapter = new JobAdapter(savedJobsList, savedJobIds, User.TYPE_YOUTH, new JobAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(Job job) {
                 JobDetailsFragment detailsFragment = new JobDetailsFragment();
@@ -141,6 +142,8 @@ public class SavedJobsFragment extends Fragment {
         mDatabase.child("saved_jobs").child(uid).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshotIds) {
+                if (!isAdded() || getActivity() == null) return; // Lifecycle protection
+
                 savedJobIds.clear();
                 for (DataSnapshot childSnapshot : snapshotIds.getChildren()) {
                     savedJobIds.add(childSnapshot.getKey());
@@ -150,6 +153,8 @@ public class SavedJobsFragment extends Fragment {
                 mDatabase.child("jobs").addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshotJobs) {
+                        if (!isAdded() || getActivity() == null) return; // Lifecycle protection
+
                         savedJobsList.clear();
                         for (DataSnapshot jobSnapshot : snapshotJobs.getChildren()) {
                             Job job = jobSnapshot.getValue(Job.class);

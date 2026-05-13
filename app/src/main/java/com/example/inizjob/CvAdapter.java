@@ -43,7 +43,14 @@ public class CvAdapter extends RecyclerView.Adapter<CvAdapter.CvViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull CvViewHolder holder, int position) {
         Cv cv = cvList.get(position);
-        holder.tvCvTitle.setText("קורות חיים: " + cv.fullName);
+
+        // הצגת כותרת הקו"ח הייעודית, או טקסט ברירת מחדל אם חסר
+        if (cv.cvTitle != null && !cv.cvTitle.isEmpty()) {
+            holder.tvCvTitle.setText(cv.cvTitle);
+        } else {
+            holder.tvCvTitle.setText("קורות חיים אישיים");
+        }
+
         holder.tvCvPreview.setText("השכלה: " + cv.education);
 
         holder.btnEditCv.setOnClickListener(new View.OnClickListener() {

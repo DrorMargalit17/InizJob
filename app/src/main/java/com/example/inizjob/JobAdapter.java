@@ -12,12 +12,13 @@ import java.util.List;
 /*
  * Class: JobAdapter
  * Purpose: Handles displaying jobs in the main list.
- * Update: Now displays the structured 'location' (City) field on the job card.
+ * Update: Conditionally hides the favorite star if the user is a Business.
  */
 public class JobAdapter extends RecyclerView.Adapter<JobAdapter.JobViewHolder> {
 
     private List<Job> jobList;
     private List<String> savedJobIds;
+    private String userType; // Added userType to determine visibility
     private OnItemClickListener listener;
     private OnFavoriteClickListener favListener;
 
@@ -29,9 +30,10 @@ public class JobAdapter extends RecyclerView.Adapter<JobAdapter.JobViewHolder> {
         void onFavoriteClick(Job job, boolean isCurrentlySaved);
     }
 
-    public JobAdapter(List<Job> jobList, List<String> savedJobIds, OnItemClickListener listener, OnFavoriteClickListener favListener) {
+    public JobAdapter(List<Job> jobList, List<String> savedJobIds, String userType, OnItemClickListener listener, OnFavoriteClickListener favListener) {
         this.jobList = jobList;
         this.savedJobIds = savedJobIds;
+        this.userType = userType;
         this.listener = listener;
         this.favListener = favListener;
     }
@@ -43,6 +45,12 @@ public class JobAdapter extends RecyclerView.Adapter<JobAdapter.JobViewHolder> {
 
     public void updateSavedJobs(List<String> newSavedJobIds) {
         this.savedJobIds = newSavedJobIds;
+        notifyDataSetChanged();
+    }
+
+    // Method to update userType dynamically from HomeFragment
+    public void setUserType(String userType) {
+        this.userType = userType;
         notifyDataSetChanged();
     }
 
@@ -59,20 +67,34 @@ public class JobAdapter extends RecyclerView.Adapter<JobAdapter.JobViewHolder> {
         holder.tvJobTitle.setText(job.title);
         holder.tvCompany.setText(job.company);
 
-        // Display the City (location) on the main list card
         holder.tvLocation.setText(job.location);
-
         holder.tvSalary.setText(String.valueOf(job.salary) + " ₪ / שעה");
 
-        boolean isSaved = false;
-        if (savedJobIds != null && savedJobIds.contains(job.jobId)) {
-            isSaved = true;
-        }
-
-        if (isSaved) {
-            holder.btnFavorite.setImageResource(android.R.drawable.btn_star_big_on);
+        // Logic to hide the favorite button for Business users
+        if (User.TYPE_BUSINESS.equals(userType)) {
+            holder.btnFavorite.setVisibility(View.GONE);
         } else {
-            holder.btnFavorite.setImageResource(android.R.drawable.btn_star_big_off);
+            holder.btnFavorite.setVisibility(View.VISIBLE);
+            boolean isSaved = false;
+            if (savedJobIds != null && savedJobIds.contains(job.jobId)) {
+                isSaved = true;
+            }
+
+            if (isSaved) {
+                holder.btnFavorite.setImageResource(android.R.drawable.btn_star_big_on);
+            } else {
+                holder.btnFavorite.setImageResource(android.R.drawable.btn_star_big_off);
+            }
+
+            final boolean currentSavedState = isSaved;
+            holder.btnFavorite.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (favListener != null) {
+                        favListener.onFavoriteClick(job, currentSavedState);
+                    }
+                }
+            });
         }
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -80,16 +102,6 @@ public class JobAdapter extends RecyclerView.Adapter<JobAdapter.JobViewHolder> {
             public void onClick(View v) {
                 if (listener != null) {
                     listener.onItemClick(job);
-                }
-            }
-        });
-
-        final boolean currentSavedState = isSaved;
-        holder.btnFavorite.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (favListener != null) {
-                    favListener.onFavoriteClick(job, currentSavedState);
                 }
             }
         });
@@ -102,7 +114,7 @@ public class JobAdapter extends RecyclerView.Adapter<JobAdapter.JobViewHolder> {
 
     public static class JobViewHolder extends RecyclerView.ViewHolder {
         TextView tvJobTitle, tvCompany, tvLocation, tvSalary;
-        ImageView btnFavorite; // removed imgjob object
+        ImageView btnFavorite;
 
         public JobViewHolder(@NonNull View itemView) {
             super(itemView);

@@ -39,120 +39,222 @@
                 android:layout_centerInParent="true" />
         </RelativeLayout>
 
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        <LinearLayout
+            android:id="@+id/cvPage1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="תמצית מקצועית (מי אתה ומה המטרה?)"
-            android:layout_marginBottom="12dp">
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etCvSummary"
-                android:layout_width="match_parent"
-                android:layout_height="80dp"
-                android:gravity="top|start"
-                android:inputType="textMultiLine"/>
-        </com.google.android.material.textfield.TextInputLayout>
+            android:orientation="vertical"
+            android:visibility="visible">
 
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="השכלה (מוסד לימודים, מגמות, תוכניות חוץ)"
-            android:layout_marginBottom="12dp">
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etCvEducation"
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textMultiLine"/>
-        </com.google.android.material.textfield.TextInputLayout>
+                android:hint="כותרת (לדוגמה: קו''ח למלצרות / הדרכה)"
+                android:layout_marginBottom="12dp">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etCvTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text"/>
+            </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="ניסיון תעסוקתי והתנדבות"
-            android:layout_marginBottom="12dp">
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etCvExperience"
-                android:layout_width="match_parent"
-                android:layout_height="80dp"
-                android:gravity="top|start"
-                android:inputType="textMultiLine"/>
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="כישורים ומיומנויות (טכני/מעשי)"
-            android:layout_marginBottom="12dp">
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etCvSkills"
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textMultiLine"/>
-        </com.google.android.material.textfield.TextInputLayout>
+                android:hint="תמצית מקצועית (מי אתה ומה המטרה?)"
+                android:layout_marginBottom="12dp">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etCvSummary"
+                    android:layout_width="match_parent"
+                    android:layout_height="80dp"
+                    android:gravity="top|start"
+                    android:inputType="textMultiLine"/>
+            </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="הישגים ויוזמות אישיות"
-            android:layout_marginBottom="12dp">
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etCvAchievements"
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textMultiLine"/>
-        </com.google.android.material.textfield.TextInputLayout>
+                android:hint="השכלה (מוסד לימודים, מגמות, תוכניות חוץ)"
+                android:layout_marginBottom="12dp">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etCvEducation"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textMultiLine"/>
+            </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="מאפיינים וחוזקות (תכונות בולטות)"
-            android:layout_marginBottom="12dp">
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etCvTraits"
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textMultiLine"/>
-        </com.google.android.material.textfield.TextInputLayout>
+                android:hint="ניסיון תעסוקתי והתנדבות"
+                android:layout_marginBottom="12dp">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etCvExperience"
+                    android:layout_width="match_parent"
+                    android:layout_height="80dp"
+                    android:gravity="top|start"
+                    android:inputType="textMultiLine"/>
+            </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="פרטים נוספים וייחוד אישי"
-            android:layout_marginBottom="20dp">
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etCvUnique"
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textMultiLine"/>
-        </com.google.android.material.textfield.TextInputLayout>
+                android:hint="כישורים ומיומנויות (טכני/מעשי)"
+                android:layout_marginBottom="12dp">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etCvSkills"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textMultiLine"/>
+            </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnGenerateAndSaveCV"
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:text="צור קורות חיים בעזרת AI"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            app:cornerRadius="30dp"
-            app:backgroundTint="@color/brand_purple"
-            android:layout_marginBottom="20dp"/>
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="הישגים ויוזמות אישיות"
+                android:layout_marginBottom="12dp">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etCvAchievements"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textMultiLine"/>
+            </com.google.android.material.textfield.TextInputLayout>
 
-        <TextView
-            android:id="@+id/tvGeneratedCvResult"
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="מאפיינים וחוזקות (תכונות בולטות)"
+                android:layout_marginBottom="12dp">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etCvTraits"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textMultiLine"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="פרטים נוספים וייחוד אישי"
+                android:layout_marginBottom="20dp">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etCvUnique"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textMultiLine"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:baselineAligned="false"
+                android:layout_marginBottom="12dp">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnGenerateAndSaveCV"
+                    android:layout_width="0dp"
+                    android:layout_height="60dp"
+                    android:layout_weight="1"
+                    android:layout_marginHorizontal="4dp"
+                    android:text="צור קורות חיים"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    app:cornerRadius="25dp"
+                    app:backgroundTint="@color/brand_purple" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnSkipToResult"
+                    android:layout_width="0dp"
+                    android:layout_height="60dp"
+                    android:layout_weight="1"
+                    android:layout_marginHorizontal="4dp"
+                    android:text="דלג לתוצאה"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    app:cornerRadius="25dp"
+                    app:backgroundTint="#757575"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/cvPage2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="#212121"
-            android:textSize="15sp"
-            android:lineSpacingExtra="5dp"
-            android:background="#F8F8F8"
-            android:padding="16dp"
-            android:visibility="gone"/>
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="התוצאה לפניך. ניתן לערוך את הטקסט בחופשיות:"
+                android:textColor="#424242"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="12dp"/>
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:hint="מסמך קורות החיים (עריך)">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etGeneratedCvResult"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minLines="15"
+                    android:gravity="top|start"
+                    android:inputType="textMultiLine"
+                    android:textColor="#212121"
+                    android:textSize="15sp"
+                    android:lineSpacingExtra="5dp"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:baselineAligned="false"
+                android:layout_marginBottom="20dp">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnSaveFinalCv"
+                    android:layout_width="0dp"
+                    android:layout_height="60dp"
+                    android:layout_weight="1"
+                    android:layout_marginHorizontal="4dp"
+                    android:text="שמור סופית"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    app:cornerRadius="25dp"
+                    app:backgroundTint="#2E7D32" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnBackToForm"
+                    android:layout_width="0dp"
+                    android:layout_height="60dp"
+                    android:layout_weight="1"
+                    android:layout_marginHorizontal="4dp"
+                    android:text="חזור לשאלון"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    app:cornerRadius="25dp"
+                    app:backgroundTint="#9E9E9E" />
+            </LinearLayout>
+
+        </LinearLayout>
 
     </LinearLayout>
 </ScrollView>

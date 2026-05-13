@@ -28,21 +28,30 @@ public class GeminiAiManager {
         GenerativeModelFutures model = GenerativeModelFutures.from(gm);
 
         // Advanced prompt with professional category names
+        // updated to be optimized for mobile screens and WhatsApp messaging
         String promptText = "You are an expert resume writer. Create a professional CV in HEBREW. " +
-                "Enhance the wording to sound official and impressive, but strictly follow the facts provided. " +
-                "Use these exact Hebrew headers in the document:\n" +
-                "1. תמצית מקצועית\n2. השכלה\n3. ניסיון תעסוקתי והתנדבות\n4. כישורים ומיומנויות טכניות\n" +
-                "5. הישגים ויוזמות אישיות\n6. מאפיינים וחוזקות\n7. פרטים נוספים וייחוד אישי\n\n" +
+                "Take the provided raw data and expand it into beautifully crafted, official-sounding sentences. " +
+                "Format the output as a clean text document optimized for mobile screens and WhatsApp messaging. " +
+                "Use standard bullet points (•) for lists. Do NOT use markdown symbols like '**' or '#'.\n\n" +
+                "Organize the document using these specific headers with emojis:\n" +
+                "👤 פרטים אישיים\n" +
+                "🎯 תמצית מקצועית\n" +
+                "🎓 השכלה\n" +
+                "💼 ניסיון תעסוקתי והתנדבות\n" +
+                "💻 כישורים ומיומנויות\n" +
+                "🏆 הישגים ויוזמות אישיות\n" +
+                "🌟 מאפיינים וחוזקות\n" +
+                "✨ פרטים נוספים\n\n" +
                 "Candidate Details:\n" +
-                "Name: " + name + ", Phone: " + phone + ", Email: " + email + "\n" +
-                "Objective Data: " + cvData.summary + "\n" +
-                "Education Data: " + cvData.education + "\n" +
-                "Experience Data: " + cvData.experience + "\n" +
-                "Skills Data: " + cvData.skills + "\n" +
-                "Achievements Data: " + cvData.achievements + "\n" +
-                "Traits Data: " + cvData.traits + "\n" +
+                "Name: " + name + "\nPhone: " + phone + "\nEmail: " + email + "\n" +
+                "Summary: " + cvData.summary + "\n" +
+                "Education: " + cvData.education + "\n" +
+                "Experience: " + cvData.experience + "\n" +
+                "Skills: " + cvData.skills + "\n" +
+                "Achievements: " + cvData.achievements + "\n" +
+                "Traits: " + cvData.traits + "\n" +
                 "Unique Detail: " + cvData.uniqueDetail + "\n\n" +
-                "Formatting: Professional, clean, no Markdown asterisks.";
+                "Important: Do not invent facts, only enhance the phrasing. Write ONLY the CV content without introductory greetings.";
 
         Content content = new Content.Builder().addText(promptText).build();
         ListenableFuture<GenerateContentResponse> response = model.generateContent(content);

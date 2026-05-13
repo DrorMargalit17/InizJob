@@ -1,6 +1,8 @@
 package com.example.inizjob;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +11,7 @@ import android.widget.AutoCompleteTextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.button.MaterialButton;
@@ -45,6 +48,9 @@ public class FilterSystemFragment extends BottomSheetDialogFragment {
         btnClearFilters = view.findViewById(R.id.btnClearFilters);
 
         setupDropdowns();
+
+        // initialize ux logic to update button states dynamically
+        setupFilterUX();
 
         btnApplyFilters.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -92,5 +98,44 @@ public class FilterSystemFragment extends BottomSheetDialogFragment {
         // Job Scopes
         String[] scopes = new String[]{"הכל", "משרה מלאה", "משרה חלקית", "משמרות", "פרויקט זמני"};
         filterJobScope.setAdapter(new ArrayAdapter<>(getContext(), android.R.layout.simple_dropdown_item_1line, scopes));
+    }
+
+    // dynamic color change logic based on user input
+    private void setupFilterUX() {
+        TextWatcher watcher = new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            @Override public void afterTextChanged(Editable s) {
+                updateApplyButtonState();
+            }
+        };
+
+        filterCity.addTextChangedListener(watcher);
+        filterWorkField.addTextChangedListener(watcher);
+        filterJobScope.addTextChangedListener(watcher);
+
+        // set initial state
+        updateApplyButtonState();
+    }
+
+    // checks if at least one parameter is selected and updates ui
+    private void updateApplyButtonState() {
+        if (getContext() == null) return;
+
+        String city = filterCity.getText().toString();
+        String workField = filterWorkField.getText().toString();
+        String jobScope = filterJobScope.getText().toString();
+
+        boolean hasActiveFilter = (!city.isEmpty() && !city.equals("הכל")) ||
+                (!workField.isEmpty() && !workField.equals("הכל")) ||
+                (!jobScope.isEmpty() && !jobScope.equals("הכל"));
+
+        if (hasActiveFilter) {
+            btnApplyFilters.setTextColor(ContextCompat.getColor(getContext(), android.R.color.white));
+            btnApplyFilters.setBackgroundTintList(android.content.res.ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.brand_purple)));
+        } else {
+            btnApplyFilters.setTextColor(ContextCompat.getColor(getContext(), android.R.color.darker_gray));
+            btnApplyFilters.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#E0E0E0")));
+        }
     }
 }

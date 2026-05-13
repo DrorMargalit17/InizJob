@@ -272,4 +272,4 @@ public class AddJobFragment extends Fragment {
             }
         });
     }
-}
+}   

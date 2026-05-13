@@ -24,12 +24,7 @@ import com.google.firebase.database.FirebaseDatabase;
 /*
  * Class: ProfileFragment
  * Purpose: Manages the user profile screen, displaying user info and a dynamic settings menu.
- * * Methods and Actions List:
- * 1. onCreateView - Inflates the layout for the profile screen.
- * 2. onViewCreated - Maps UI elements and sets explicit click listeners for the remaining menu rows.
- * 3. fetchUserProfile - Retrieves the connected user's details from Firebase Realtime Database.
- * 4. updateUI - Populates the header and dynamically hides/shows the appropriate routing text for CVs/Jobs.
- * 5. performLogout - Securely logs out the user and clears navigation history.
+ * * Update: Replaced "CV" logic with hiding the menu row for business owners entirely.
  */
 public class ProfileFragment extends Fragment {
 
@@ -37,7 +32,7 @@ public class ProfileFragment extends Fragment {
     private TextView tvRowJobsText, tvRowBusinessCodeText;
 
     private LinearLayout rowEditProfile, rowJobs, rowBusinessCode, rowAbout, rowRights, rowLogout;
-    private View dividerBusinessCode;
+    private View dividerBusinessCode, dividerJobs;
 
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
@@ -68,8 +63,10 @@ public class ProfileFragment extends Fragment {
 
         // Menu Rows
         rowEditProfile = view.findViewById(R.id.rowEditProfile);
+
         rowJobs = view.findViewById(R.id.rowJobs);
         tvRowJobsText = view.findViewById(R.id.tvRowJobsText);
+        dividerJobs = view.findViewById(R.id.dividerJobs);
 
         rowBusinessCode = view.findViewById(R.id.rowBusinessCode);
         tvRowBusinessCodeText = view.findViewById(R.id.tvRowBusinessCodeText);
@@ -95,21 +92,12 @@ public class ProfileFragment extends Fragment {
         rowJobs.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Dynamic routing from profile based on user type using single source of truth
-                if (User.TYPE_BUSINESS.equals(currentUserType)) {
-                    if (getActivity() != null) {
-                        getActivity().getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.mainFragmentContainer, new MyCvsFragment())
-                                .addToBackStack(null)
-                                .commit();
-                    }
-                } else {
-                    if (getActivity() != null) {
-                        getActivity().getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.mainFragmentContainer, new SavedJobsFragment())
-                                .addToBackStack(null)
-                                .commit();
-                    }
+                // Now only accessible to Youth users
+                if (getActivity() != null && !User.TYPE_BUSINESS.equals(currentUserType)) {
+                    getActivity().getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.mainFragmentContainer, new SavedJobsFragment())
+                            .addToBackStack(null)
+                            .commit();
                 }
             }
         });
@@ -120,7 +108,6 @@ public class ProfileFragment extends Fragment {
                 InfoPageFragment infoFragment = new InfoPageFragment();
                 Bundle args = new Bundle();
 
-                // Fetching strings securely from resources
                 args.putString("INFO_TITLE", getString(R.string.about_title));
                 args.putString("INFO_CONTENT", getString(R.string.about_content));
                 infoFragment.setArguments(args);
@@ -140,7 +127,6 @@ public class ProfileFragment extends Fragment {
                 InfoPageFragment infoFragment = new InfoPageFragment();
                 Bundle args = new Bundle();
 
-                // Fetching strings securely from resources
                 args.putString("INFO_TITLE", getString(R.string.rights_title));
                 args.putString("INFO_CONTENT", getString(R.string.rights_content));
                 infoFragment.setArguments(args);
@@ -174,19 +160,16 @@ public class ProfileFragment extends Fragment {
         mDatabase.child("users").child(uid).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DataSnapshot> task) {
-                // protect against memory leaks and crashes if fragment is closed
                 if (!isAdded() || getActivity() == null) {
                     return;
                 }
 
                 if (task.isSuccessful()) {
                     DataSnapshot snapshot = task.getResult();
-                    if (snapshot != null) {
-                        if (snapshot.exists()) {
-                            User userProfile = snapshot.getValue(User.class);
-                            if (userProfile != null) {
-                                updateUI(userProfile);
-                            }
+                    if (snapshot != null && snapshot.exists()) {
+                        User userProfile = snapshot.getValue(User.class);
+                        if (userProfile != null) {
+                            updateUI(userProfile);
                         }
                     }
                 } else {
@@ -204,35 +187,29 @@ public class ProfileFragment extends Fragment {
         tvProfileName.setText(userProfile.fullName);
         tvProfileEmail.setText(userProfile.email);
 
-        // translate internal type to hebrew for ui display
         if (User.TYPE_BUSINESS.equals(userProfile.type)) {
             tvProfileTypeBadge.setText("עסק");
-        } else if (User.TYPE_YOUTH.equals(userProfile.type)) {
-            tvProfileTypeBadge.setText("נוער");
-        } else {
-            tvProfileTypeBadge.setText(userProfile.type);
-        }
 
-        if (User.TYPE_BUSINESS.equals(userProfile.type)) {
-            // Business gets CV access in profile instead of Jobs
-            tvRowJobsText.setText("קורות חיים");
+            // Hide the jobs/cv row entirely for business
+            rowJobs.setVisibility(View.GONE);
+            dividerJobs.setVisibility(View.GONE);
 
             rowBusinessCode.setVisibility(View.VISIBLE);
             dividerBusinessCode.setVisibility(View.VISIBLE);
 
-            if (userProfile.businessCode != null) {
-                if (!userProfile.businessCode.isEmpty()) {
-                    tvRowBusinessCodeText.setText(userProfile.businessCode);
-                } else {
-                    tvRowBusinessCodeText.setText("לא הוזן");
-                }
+            if (userProfile.businessCode != null && !userProfile.businessCode.isEmpty()) {
+                tvRowBusinessCodeText.setText(userProfile.businessCode);
             } else {
                 tvRowBusinessCodeText.setText("לא הוזן");
             }
 
         } else {
             // Youth gets Saved Jobs access in profile
+            tvProfileTypeBadge.setText("נוער");
+            rowJobs.setVisibility(View.VISIBLE);
+            dividerJobs.setVisibility(View.VISIBLE);
             tvRowJobsText.setText("המשרות ששמרתי");
+
             rowBusinessCode.setVisibility(View.GONE);
             dividerBusinessCode.setVisibility(View.GONE);
         }
