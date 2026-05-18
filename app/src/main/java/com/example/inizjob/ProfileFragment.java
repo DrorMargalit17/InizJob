@@ -1,11 +1,15 @@
 package com.example.inizjob;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,14 +29,19 @@ import com.google.firebase.database.FirebaseDatabase;
  * Class: ProfileFragment
  * Purpose: Manages the user profile screen, displaying user info and a dynamic settings menu.
  * * Update: Replaced "CV" logic with hiding the menu row for business owners entirely.
+ * * Update: Added Avatar logic mapping to tint colors for visual feedback.
+ * * Update: Added loading indicator to improve UX and prevent pop-in.
  */
 public class ProfileFragment extends Fragment {
 
+    private ImageView imgProfileAvatar;
     private TextView tvProfileName, tvProfileEmail, tvProfileTypeBadge;
     private TextView tvRowJobsText, tvRowBusinessCodeText;
 
     private LinearLayout rowEditProfile, rowJobs, rowBusinessCode, rowAbout, rowRights, rowLogout;
     private View dividerBusinessCode, dividerJobs;
+    private ProgressBar progressBarProfile;
+    private LinearLayout layoutProfileContent;
 
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
@@ -57,9 +66,12 @@ public class ProfileFragment extends Fragment {
         mDatabase = FirebaseDatabase.getInstance("https://inizjob4586-default-rtdb.firebaseio.com/").getReference();
 
         // Header Views
+        imgProfileAvatar = view.findViewById(R.id.imgProfileAvatar);
         tvProfileName = view.findViewById(R.id.tvProfileName);
         tvProfileEmail = view.findViewById(R.id.tvProfileEmail);
         tvProfileTypeBadge = view.findViewById(R.id.tvProfileTypeBadge);
+        progressBarProfile = view.findViewById(R.id.progressBarProfile);
+        layoutProfileContent = view.findViewById(R.id.layoutProfileContent);
 
         // Menu Rows
         rowEditProfile = view.findViewById(R.id.rowEditProfile);
@@ -153,6 +165,7 @@ public class ProfileFragment extends Fragment {
     private void fetchUserProfile() {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser == null) {
+            progressBarProfile.setVisibility(View.GONE);
             return;
         }
 
@@ -177,6 +190,10 @@ public class ProfileFragment extends Fragment {
                         Toast.makeText(getContext(), "Error loading profile data", Toast.LENGTH_SHORT).show();
                     }
                 }
+
+                // Hide progress bar and show content after loading is done
+                progressBarProfile.setVisibility(View.GONE);
+                layoutProfileContent.setVisibility(View.VISIBLE);
             }
         });
     }
@@ -186,6 +203,16 @@ public class ProfileFragment extends Fragment {
 
         tvProfileName.setText(userProfile.fullName);
         tvProfileEmail.setText(userProfile.email);
+
+        // Safely check avatar type and apply color tint to simulate different avatars
+        if ("boy".equals(userProfile.avatarType)) {
+            imgProfileAvatar.setColorFilter(Color.parseColor("#1E88E5"), PorterDuff.Mode.SRC_IN);
+        } else if ("girl".equals(userProfile.avatarType)) {
+            imgProfileAvatar.setColorFilter(Color.parseColor("#E53935"), PorterDuff.Mode.SRC_IN);
+        } else {
+            // Default purple if null or "default"
+            imgProfileAvatar.setColorFilter(Color.parseColor("#6200EE"), PorterDuff.Mode.SRC_IN);
+        }
 
         if (User.TYPE_BUSINESS.equals(userProfile.type)) {
             tvProfileTypeBadge.setText("עסק");

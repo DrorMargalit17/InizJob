@@ -1,23 +1,24 @@
 package com.example.inizjob;
 
+import android.app.DatePickerDialog;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.Spinner;
+import android.widget.DatePicker;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.AuthResult;
@@ -27,14 +28,14 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
-import java.util.ArrayList;
+import java.util.Calendar;
 
 /*
  * class: registerfragment
  * purpose: handles new user registration.
  * * methods and actions list:
- * 1. oncreateview - initializes layout and ui references, including birth date spinners.
- * 2. populatespinners - fills the day, month, and year dropdown menus.
+ * 1. oncreateview - initializes layout and ui references, including birth date dialog logic.
+ * 2. showDatePicker - opens a native android calendar locked between ages 14 and 18.
  * 3. performregistration - validates form (including date for youth or code for business) and creates a new user.
  * 4. updatetoggleui - switches visuals based on youth/business selection.
  */
@@ -45,11 +46,10 @@ public class RegisterFragment extends Fragment {
     private DatabaseReference mDatabase; // Firebase Realtime Database instance
 
     private TextView toggleYouth, toggleBusiness; // UI elements for switching between fragments
-    private View businessLayout; // UI element for business code
-    private LinearLayout birthDateLayout; // UI element for birth date
-    private Spinner spinnerDay, spinnerMonth, spinnerYear; // UI elements for date selection
+    private TextInputLayout businessLayout; // UI element for business code
+    private TextInputLayout layoutBirthDate; // UI element for birth date container
     private Button btnRegister; // UI element for registration button
-    private TextInputEditText etFullName, etEmail, etPhone, etPassword, etBusinessCode; // UI elements for input fields
+    private TextInputEditText etFullName, etEmail, etPhone, etPassword, etBusinessCode, etBirthDate; // UI elements for input fields
 
     @Nullable
     @Override
@@ -62,7 +62,7 @@ public class RegisterFragment extends Fragment {
         toggleYouth = view.findViewById(R.id.regToggleYouth);
         toggleBusiness = view.findViewById(R.id.regToggleBusiness);
         businessLayout = view.findViewById(R.id.businessLayout);
-        birthDateLayout = view.findViewById(R.id.birthDateLayout);
+        layoutBirthDate = view.findViewById(R.id.layoutBirthDate);
         btnRegister = view.findViewById(R.id.btnRegister);
 
         etFullName = view.findViewById(R.id.etFullName);
@@ -70,12 +70,15 @@ public class RegisterFragment extends Fragment {
         etPhone = view.findViewById(R.id.etPhone);
         etPassword = view.findViewById(R.id.etRegPassword);
         etBusinessCode = view.findViewById(R.id.etRegBusinessCode);
+        etBirthDate = view.findViewById(R.id.etBirthDate);
 
-        spinnerDay = view.findViewById(R.id.spinnerDay);
-        spinnerMonth = view.findViewById(R.id.spinnerMonth);
-        spinnerYear = view.findViewById(R.id.spinnerYear);
-
-        populateSpinners();
+        // Open DatePicker when birth date field is clicked
+        etBirthDate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showDatePicker();
+            }
+        });
 
         // change to youth
         toggleYouth.setOnClickListener(new View.OnClickListener() {
@@ -109,41 +112,34 @@ public class RegisterFragment extends Fragment {
         return view;
     }
 
-    // Creates the dropdown lists for the birth date selection
-    private void populateSpinners() {
-        if (getContext() == null) {
-            return;
-        }
+    private void showDatePicker() {
+        if (getContext() == null) return;
 
-        // Days
-        ArrayList<String> days = new ArrayList<>();
-        days.add("יום");
-        for (int i = 1; i <= 31; i++) {
-            days.add(String.valueOf(i));
-        }
-        ArrayAdapter<String> dayAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, days);
-        dayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerDay.setAdapter(dayAdapter);
+        Calendar calendar = Calendar.getInstance();
+        int currentYear = calendar.get(Calendar.YEAR);
+        int currentMonth = calendar.get(Calendar.MONTH);
+        int currentDay = calendar.get(Calendar.DAY_OF_MONTH);
 
-        // Months
-        ArrayList<String> months = new ArrayList<>();
-        months.add("חודש");
-        for (int i = 1; i <= 12; i++) {
-            months.add(String.valueOf(i));
-        }
-        ArrayAdapter<String> monthAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, months);
-        monthAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerMonth.setAdapter(monthAdapter);
+        DatePickerDialog datePickerDialog = new DatePickerDialog(getContext(),
+                new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                        // Month is 0-indexed in Calendar
+                        String selectedDate = dayOfMonth + "/" + (month + 1) + "/" + year;
+                        etBirthDate.setText(selectedDate);
+                    }
+                }, currentYear - 16, currentMonth, currentDay); // Default open showing age 16
 
-        // Years
-        ArrayList<String> years = new ArrayList<>();
-        years.add("שנה");
-        for (int i = 2026; i >= 2000; i--) {
-            years.add(String.valueOf(i));
-        }
-        ArrayAdapter<String> yearAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, years);
-        yearAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerYear.setAdapter(yearAdapter);
+        // Set limits for the calendar (14 to 18 years old)
+        Calendar minAge = Calendar.getInstance();
+        minAge.add(Calendar.YEAR, -18);
+        Calendar maxAge = Calendar.getInstance();
+        maxAge.add(Calendar.YEAR, -14);
+
+        datePickerDialog.getDatePicker().setMinDate(minAge.getTimeInMillis());
+        datePickerDialog.getDatePicker().setMaxDate(maxAge.getTimeInMillis());
+
+        datePickerDialog.show();
     }
 
     // Method to register to the app
@@ -183,34 +179,33 @@ public class RegisterFragment extends Fragment {
         //checks if user is youth or business
         String type;
         if (isYouthSelected) {
-            type = User.TYPE_YOUTH; // Fixed to use constants from User class
-            // checks that a full date has been selected
-            if (spinnerDay.getSelectedItemPosition() == 0 || spinnerMonth.getSelectedItemPosition() == 0 || spinnerYear.getSelectedItemPosition() == 0) {
+            type = User.TYPE_YOUTH;
+            String selectedDate = etBirthDate.getText().toString().trim();
+
+            if (TextUtils.isEmpty(selectedDate)) {
                 Toast.makeText(getContext(), "Please select a full birth date", Toast.LENGTH_SHORT).show();
                 return;
             }
 
             try {
-                int day = Integer.parseInt(spinnerDay.getSelectedItem().toString());
-                int month = Integer.parseInt(spinnerMonth.getSelectedItem().toString());
-                int year = Integer.parseInt(spinnerYear.getSelectedItem().toString());
+                String[] parts = selectedDate.split("/");
+                int day = Integer.parseInt(parts[0]);
+                int month = Integer.parseInt(parts[1]);
+                int year = Integer.parseInt(parts[2]);
 
-                // Validate age to ensure it is between 14 and 18
+                // Validate age to ensure it is between 14 and 18 using InputValidator
                 if (!InputValidator.isValidAge(year, month, day)) {
                     Toast.makeText(getContext(), "Registration is only allowed for ages 14 to 18", Toast.LENGTH_LONG).show();
                     return;
                 }
-            } catch (NumberFormatException e) {
+                birthDate = selectedDate;
+            } catch (Exception e) {
                 Toast.makeText(getContext(), "Error reading birth date", Toast.LENGTH_SHORT).show();
                 return;
             }
-
             businessCode = ""; // Clear for youth
-            birthDate = spinnerDay.getSelectedItem().toString() + "/" +
-                    spinnerMonth.getSelectedItem().toString() + "/" +
-                    spinnerYear.getSelectedItem().toString();
         } else {
-            type = User.TYPE_BUSINESS; // Fixed to use constants from User class
+            type = User.TYPE_BUSINESS;
             // checks businessCode field is not empty
             if (TextUtils.isEmpty(businessCode)) {
                 Toast.makeText(getContext(), "Please enter a business code", Toast.LENGTH_SHORT).show();
@@ -246,8 +241,8 @@ public class RegisterFragment extends Fragment {
 
                             String userId = firebaseUser.getUid();
 
-                            //creating new user
-                            User newUser = new User(fullName, email, phone, finalType, finalBusinessCode, savedBirthDate);
+                            // Creating new user WITH the default avatar type for clean DB architecture
+                            User newUser = new User(fullName, email, phone, finalType, finalBusinessCode, savedBirthDate, "default");
 
                             mDatabase.child("users").child(userId).setValue(newUser)
                                     .addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -267,7 +262,6 @@ public class RegisterFragment extends Fragment {
                                                     ((AuthActivity) getActivity()).switchToLogin(isYouthSelected);
                                                 }
                                             } else {
-                                                // notify the user of the failure
                                                 btnRegister.setEnabled(true);
                                                 Toast.makeText(getContext(), "Saving details failed.", Toast.LENGTH_SHORT).show();
                                             }
@@ -278,7 +272,6 @@ public class RegisterFragment extends Fragment {
                             // notify the user of a failure during registration
                             btnRegister.setEnabled(true);
                             if (task.getException() != null) {
-                                // Check for specific email collision exception
                                 if (task.getException() instanceof FirebaseAuthUserCollisionException) {
                                     Toast.makeText(getContext(), "This email is already registered. Please login.", Toast.LENGTH_LONG).show();
                                 } else {
@@ -305,7 +298,7 @@ public class RegisterFragment extends Fragment {
 
             // Show Date, Hide businessCode
             if (businessLayout != null) businessLayout.setVisibility(View.GONE);
-            if (birthDateLayout != null) birthDateLayout.setVisibility(View.VISIBLE);
+            if (layoutBirthDate != null) layoutBirthDate.setVisibility(View.VISIBLE);
             // Changes UI if user type is business
         } else {
             toggleBusiness.setBackgroundResource(R.drawable.bg_gradient_button);
@@ -315,7 +308,7 @@ public class RegisterFragment extends Fragment {
 
             // Show businessCode, Hide Date
             if (businessLayout != null) businessLayout.setVisibility(View.VISIBLE);
-            if (birthDateLayout != null) birthDateLayout.setVisibility(View.GONE);
+            if (layoutBirthDate != null) layoutBirthDate.setVisibility(View.GONE);
         }
     }
 }

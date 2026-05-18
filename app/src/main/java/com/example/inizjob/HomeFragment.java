@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -44,12 +45,17 @@ public class HomeFragment extends Fragment {
     private EditText etSearchJobs;
     private FloatingActionButton fabAddJob;
     private LinearLayout btnOpenAdvancedFilters;
+    private ProgressBar progressBarHome;
 
     private JobRepository repository;
     private DatabaseReference mUserRef;
 
     private String filterCity = "", filterField = "", filterScope = "";
     private String currentUserType = ""; // Store user type
+
+    // Sync flags for smooth loading UI
+    private boolean isUserLoaded = false;
+    private boolean isJobsLoaded = false;
 
     public HomeFragment() {
         // Required empty constructor
@@ -71,6 +77,7 @@ public class HomeFragment extends Fragment {
         etSearchJobs = view.findViewById(R.id.etSearchJobs);
         fabAddJob = view.findViewById(R.id.fabAddJob);
         btnOpenAdvancedFilters = view.findViewById(R.id.btnOpenAdvancedFilters);
+        progressBarHome = view.findViewById(R.id.progressBarHome);
 
         rvHorizontalJobs.setLayoutManager(new LinearLayoutManager(getContext()));
 
@@ -105,6 +112,14 @@ public class HomeFragment extends Fragment {
         startDataObservation();
 
         return view;
+    }
+
+    // Method to check if both data sources are ready before showing the list
+    private void checkAndHideLoader() {
+        if (isUserLoaded && isJobsLoaded) {
+            progressBarHome.setVisibility(View.GONE);
+            rvHorizontalJobs.setVisibility(View.VISIBLE);
+        }
     }
 
     private void setupListeners() {
@@ -181,8 +196,13 @@ public class HomeFragment extends Fragment {
                             }
                         }
                     }
+                    isUserLoaded = true;
+                    checkAndHideLoader();
                 }
             });
+        } else {
+            isUserLoaded = true;
+            checkAndHideLoader();
         }
     }
 
@@ -195,6 +215,9 @@ public class HomeFragment extends Fragment {
                 }
                 allJobsList = jobs;
                 refreshDisplayList();
+
+                isJobsLoaded = true;
+                checkAndHideLoader();
             }
 
             @Override
@@ -210,6 +233,8 @@ public class HomeFragment extends Fragment {
                 if (getContext() != null) {
                     Toast.makeText(getContext(), error, Toast.LENGTH_SHORT).show();
                 }
+                isJobsLoaded = true;
+                checkAndHideLoader();
             }
         });
 

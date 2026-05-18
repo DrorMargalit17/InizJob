@@ -45,6 +45,10 @@ public class SavedJobsFragment extends Fragment {
     // UI element for back navigation
     private ImageButton btnBackSavedJobs;
 
+    // Database references and listeners to handle memory management
+    private DatabaseReference savedJobsRef;
+    private ValueEventListener savedJobsListener;
+
     public SavedJobsFragment() {
         // Required empty public constructor
     }
@@ -138,8 +142,9 @@ public class SavedJobsFragment extends Fragment {
         }
 
         String uid = mAuth.getCurrentUser().getUid();
+        savedJobsRef = mDatabase.child("saved_jobs").child(uid);
 
-        mDatabase.child("saved_jobs").child(uid).addValueEventListener(new ValueEventListener() {
+        savedJobsListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshotIds) {
                 if (!isAdded() || getActivity() == null) return; // Lifecycle protection
@@ -181,6 +186,17 @@ public class SavedJobsFragment extends Fragment {
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
             }
-        });
+        };
+
+        savedJobsRef.addValueEventListener(savedJobsListener);
+    }
+
+    // Prevents memory leaks by removing the listener when the fragment is destroyed
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (savedJobsRef != null && savedJobsListener != null) {
+            savedJobsRef.removeEventListener(savedJobsListener);
+        }
     }
 }

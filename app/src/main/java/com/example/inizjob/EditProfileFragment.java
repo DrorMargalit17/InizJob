@@ -1,14 +1,15 @@
 package com.example.inizjob;
 
+import android.app.DatePickerDialog;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.widget.DatePicker;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
-import android.widget.Spinner;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -19,21 +20,21 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
-
 public class EditProfileFragment extends Fragment {
 
-    private TextInputEditText etFullName, etPhone; // UI elements for input fields
-    private LinearLayout layoutEditBirthDate; // UI element for birth date
-    private Spinner spinnerDay, spinnerMonth, spinnerYear; // UI elements for date selection
+    private TextInputEditText etFullName, etPhone, etBirthDate, etBusinessCode; // UI elements for input fields
+    private TextInputLayout layoutEditBirthDate, layoutEditBusinessCode;
+    private ImageView imgSelectBoy, imgSelectGirl;
     private MaterialButton btnSaveProfile; // UI element for save button
 
     // UI element for back navigation
@@ -43,6 +44,7 @@ public class EditProfileFragment extends Fragment {
     private DatabaseReference mDatabase; // Firebase Realtime Database instance
     private String userId; // User's Firebase ID
     private String currentUserType = ""; // checks if user is youth or business
+    private String selectedAvatar = "default"; // default avatar
 
     public EditProfileFragment() {
         // Required empty public constructor
@@ -63,16 +65,46 @@ public class EditProfileFragment extends Fragment {
         // Initialize Views
         etFullName = view.findViewById(R.id.etEditFullName);
         etPhone = view.findViewById(R.id.etEditPhone);
+
         layoutEditBirthDate = view.findViewById(R.id.layoutEditBirthDate);
-        spinnerDay = view.findViewById(R.id.spinnerEditDay);
-        spinnerMonth = view.findViewById(R.id.spinnerEditMonth);
-        spinnerYear = view.findViewById(R.id.spinnerEditYear);
+        etBirthDate = view.findViewById(R.id.etEditBirthDate);
+
+        layoutEditBusinessCode = view.findViewById(R.id.layoutEditBusinessCode);
+        etBusinessCode = view.findViewById(R.id.etEditBusinessCode);
+
+        imgSelectBoy = view.findViewById(R.id.imgSelectBoy);
+        imgSelectGirl = view.findViewById(R.id.imgSelectGirl);
+
         btnSaveProfile = view.findViewById(R.id.btnSaveProfile);
         btnBackEditProfile = view.findViewById(R.id.btnBackEditProfile);
 
-        populateSpinners();
         // Load user existing data
         loadUserData();
+
+        // Setup Avatar Listeners
+        imgSelectBoy.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                selectedAvatar = "boy";
+                updateAvatarUI();
+            }
+        });
+
+        imgSelectGirl.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                selectedAvatar = "girl";
+                updateAvatarUI();
+            }
+        });
+
+        // Setup DatePicker
+        etBirthDate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showDatePicker();
+            }
+        });
 
         //save changes
         btnSaveProfile.setOnClickListener(new View.OnClickListener() {
@@ -95,31 +127,44 @@ public class EditProfileFragment extends Fragment {
         return view;
     }
 
+    private void updateAvatarUI() {
+        // Reset backgrounds
+        imgSelectBoy.setBackgroundResource(R.drawable.bg_search_bar);
+        imgSelectGirl.setBackgroundResource(R.drawable.bg_search_bar);
 
-    // Creates the dropdown lists for the birth date selection
-    private void populateSpinners() {
+        // Highlight selection
+        if ("boy".equals(selectedAvatar)) {
+            imgSelectBoy.setBackgroundResource(R.drawable.bg_toggle_container);
+        } else if ("girl".equals(selectedAvatar)) {
+            imgSelectGirl.setBackgroundResource(R.drawable.bg_toggle_container);
+        }
+    }
+
+    private void showDatePicker() {
         if (getContext() == null) return;
 
-        // Days 1-31
-        ArrayList<String> days = new ArrayList<>();
-        days.add("יום");
-        for (int i = 1; i <= 31; i++) { days.add(String.valueOf(i)); }
-        ArrayAdapter<String> dayAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, days);
-        spinnerDay.setAdapter(dayAdapter);
+        Calendar calendar = Calendar.getInstance();
+        int currentYear = calendar.get(Calendar.YEAR) - 16;
+        int currentMonth = calendar.get(Calendar.MONTH);
+        int currentDay = calendar.get(Calendar.DAY_OF_MONTH);
 
-        // Months 1-12
-        ArrayList<String> months = new ArrayList<>();
-        months.add("חודש");
-        for (int i = 1; i <= 12; i++) { months.add(String.valueOf(i)); }
-        ArrayAdapter<String> monthAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, months);
-        spinnerMonth.setAdapter(monthAdapter);
+        DatePickerDialog datePickerDialog = new DatePickerDialog(getContext(),
+                new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                        String selectedDate = dayOfMonth + "/" + (month + 1) + "/" + year;
+                        etBirthDate.setText(selectedDate);
+                    }
+                }, currentYear, currentMonth, currentDay);
 
-        // Years 2026-2000
-        ArrayList<String> years = new ArrayList<>();
-        years.add("שנה");
-        for (int i = 2026; i >= 2000; i--) { years.add(String.valueOf(i)); }
-        ArrayAdapter<String> yearAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, years);
-        spinnerYear.setAdapter(yearAdapter);
+        Calendar minAge = Calendar.getInstance();
+        minAge.add(Calendar.YEAR, -18);
+        Calendar maxAge = Calendar.getInstance();
+        maxAge.add(Calendar.YEAR, -14);
+
+        datePickerDialog.getDatePicker().setMinDate(minAge.getTimeInMillis());
+        datePickerDialog.getDatePicker().setMaxDate(maxAge.getTimeInMillis());
+        datePickerDialog.show();
     }
 
     //gets user current data, and load it to the UI
@@ -129,6 +174,8 @@ public class EditProfileFragment extends Fragment {
         mDatabase.child("users").child(userId).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DataSnapshot> task) {
+                if (!isAdded() || getActivity() == null) return;
+
                 if (task.isSuccessful() && task.getResult() != null) {
                     User user = task.getResult().getValue(User.class);
                     if (user != null) {
@@ -136,34 +183,28 @@ public class EditProfileFragment extends Fragment {
                         etPhone.setText(user.phone);
                         currentUserType = user.type;
 
-                        // Checks if UI should show and populate birth date
-                        if ("נוער".equals(currentUserType)) {
-                            layoutEditBirthDate.setVisibility(View.VISIBLE);
+                        // Handle Avatar selection gracefully
+                        if (user.avatarType != null) {
+                            selectedAvatar = user.avatarType;
+                        }
+                        updateAvatarUI();
 
-                            // If there's birth date, populate Spinners
-                            if (user.birthDate != null && user.birthDate.contains("/")) {
-                                String[] parts = user.birthDate.split("/");
-                                if (parts.length == 3) {
-                                    setSpinnerValue(spinnerDay, parts[0]);
-                                    setSpinnerValue(spinnerMonth, parts[1]);
-                                    setSpinnerValue(spinnerYear, parts[2]);
-                                }
+                        // Checks if UI should show and populate birth date
+                        if (User.TYPE_YOUTH.equals(currentUserType)) {
+                            layoutEditBirthDate.setVisibility(View.VISIBLE);
+                            if (user.birthDate != null) {
+                                etBirthDate.setText(user.birthDate);
+                            }
+                        } else if (User.TYPE_BUSINESS.equals(currentUserType)) {
+                            layoutEditBusinessCode.setVisibility(View.VISIBLE);
+                            if (user.businessCode != null) {
+                                etBusinessCode.setText(user.businessCode);
                             }
                         }
                     }
                 }
             }
         });
-    }
-
-    // Sets the selected value of a Spinner
-    private void setSpinnerValue(Spinner spinner, String value) {
-        for (int i = 0; i < spinner.getCount(); i++) {
-            if (spinner.getItemAtPosition(i).toString().equals(value)) {
-                spinner.setSelection(i);
-                break;
-            }
-        }
     }
 
     //gets the new input data and saves it to the database
@@ -176,25 +217,35 @@ public class EditProfileFragment extends Fragment {
             return;
         }
 
+        // Validate using InputValidator
+        if (!InputValidator.isValidPhone(newPhone)) {
+            Toast.makeText(getContext(), "מספר הטלפון לא חוקי", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         //updates the user's data trough a HashMap
         //using String as the key and "Object" as the new value
         Map<String, Object> updates = new HashMap<>();
         updates.put("fullName", newName);
         updates.put("phone", newPhone);
+        updates.put("avatarType", selectedAvatar);
 
         // If user is Youth, update birthDate
-        if ("נוער".equals(currentUserType)) {
-            if (spinnerDay.getSelectedItemPosition() == 0 ||
-                    spinnerMonth.getSelectedItemPosition() == 0 ||
-                    spinnerYear.getSelectedItemPosition() == 0) {
-                Toast.makeText(getContext(), "אנא בחר תאריך לידה מלא", Toast.LENGTH_SHORT).show();
+        if (User.TYPE_YOUTH.equals(currentUserType)) {
+            String newBirthDate = etBirthDate.getText().toString().trim();
+            if (TextUtils.isEmpty(newBirthDate)) {
+                Toast.makeText(getContext(), "אנא בחר תאריך לידה", Toast.LENGTH_SHORT).show();
                 return;
             }
-
-            String newBirthDate = spinnerDay.getSelectedItem().toString() + "/" +
-                    spinnerMonth.getSelectedItem().toString() + "/" +
-                    spinnerYear.getSelectedItem().toString();
             updates.put("birthDate", newBirthDate);
+
+        } else if (User.TYPE_BUSINESS.equals(currentUserType)) {
+            String newBusinessCode = etBusinessCode.getText().toString().trim();
+            if (TextUtils.isEmpty(newBusinessCode)) {
+                Toast.makeText(getContext(), "אנא הזן קוד עסק", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            updates.put("businessCode", newBusinessCode);
         }
 
         /*update using updateChildern to change only
@@ -202,12 +253,11 @@ public class EditProfileFragment extends Fragment {
         mDatabase.child("users").child(userId).updateChildren(updates).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
+                if (!isAdded() || getActivity() == null) return;
+
                 if (task.isSuccessful()) {
                     Toast.makeText(getContext(), "הפרופיל עודכן בהצלחה", Toast.LENGTH_SHORT).show();
-                    if (getActivity() != null) {
-                        //return to profile
-                        getActivity().getSupportFragmentManager().popBackStack();
-                    }
+                    getActivity().getSupportFragmentManager().popBackStack();
                 } else {
                     Toast.makeText(getContext(), "עדכון נכשל", Toast.LENGTH_SHORT).show();
                 }

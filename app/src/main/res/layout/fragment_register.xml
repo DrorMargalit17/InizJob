@@ -103,46 +103,30 @@
                 android:inputType="phone"/>
         </com.google.android.material.textfield.TextInputLayout>
 
-        <LinearLayout
-            android:id="@+id/birthDateLayout"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layoutBirthDate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:visibility="visible"
+            android:hint="תאריך לידה (גילאי 14-18)"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxStrokeColor="@color/brand_purple"
+            app:endIconDrawable="@android:drawable/ic_menu_my_calendar"
+            app:endIconMode="custom"
+            app:endIconTint="@color/brand_purple"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_marginBottom="16dp">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="תאריך לידה"
-                android:textSize="14sp"
-                android:textColor="@color/brand_purple"
-                android:layout_marginBottom="8dp"/>
-            <LinearLayout
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etBirthDate"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <Spinner
-                    android:id="@+id/spinnerDay"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="50dp"
-                    android:background="@drawable/bg_search_bar"
-                    android:layout_marginEnd="8dp"/>
-                <Spinner
-                    android:id="@+id/spinnerMonth"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="50dp"
-                    android:background="@drawable/bg_search_bar"
-                    android:layout_marginEnd="8dp"/>
-                <Spinner
-                    android:id="@+id/spinnerYear"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="50dp"
-                    android:background="@drawable/bg_search_bar"/>
-            </LinearLayout>
-        </LinearLayout>
+                android:focusable="false"
+                android:cursorVisible="false"
+                android:inputType="none"/>
+        </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/businessLayout"

@@ -32,6 +32,14 @@ public class AuthActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_auth);
 
+        // Enable offline persistence securely before any other Firebase instance is called
+        // This is critical for preventing crashes on restricted networks (like school Wi-Fi)
+        try {
+            FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+        } catch (Exception e) {
+            // Ignored if persistence was already enabled during activity restart
+        }
+
         mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance("https://inizjob4586-default-rtdb.firebaseio.com/").getReference();
 

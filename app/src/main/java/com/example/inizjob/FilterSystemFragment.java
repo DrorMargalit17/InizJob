@@ -87,12 +87,12 @@ public class FilterSystemFragment extends BottomSheetDialogFragment {
     private void setupDropdowns() {
         if (getContext() == null) return;
 
-        // Cities (Must match AddJobFragment list)
-        String[] cities = new String[]{"הכל", "תל אביב", "ירושלים", "חיפה", "ראשון לציון", "פתח תקווה", "רחובות", "אשדוד", "נתניה"};
+        // Expanded Cities list
+        String[] cities = new String[]{"הכל", "תל אביב", "ירושלים", "חיפה", "ראשון לציון", "פתח תקווה", "רחובות", "אשדוד", "נתניה", "באר שבע", "חולון", "בני ברק", "רמת גן", "אשקלון", "בת ים", "מודיעין", "הרצליה", "כפר סבא", "רעננה", "חדרה", "אילת", "אחר"};
         filterCity.setAdapter(new ArrayAdapter<>(getContext(), android.R.layout.simple_dropdown_item_1line, cities));
 
-        // Work Fields
-        String[] fields = new String[]{"הכל", "מסעדות ומזון", "מכירות ושירות לקוחות", "הדרכה וקייטנות", "אחר"};
+        // Expanded Work Fields list
+        String[] fields = new String[]{"הכל", "מסעדות ומזון", "מכירות ושירות לקוחות", "הדרכה וקייטנות", "שליחויות ולוגיסטיקה", "אדמיניסטרציה ומזכירות", "אבטחה ושמירה", "מחשבים והייטק", "ייצור ותעשייה", "סופרמרקטים וקמעונאות", "אירועים והפקות", "אחר"};
         filterWorkField.setAdapter(new ArrayAdapter<>(getContext(), android.R.layout.simple_dropdown_item_1line, fields));
 
         // Job Scopes

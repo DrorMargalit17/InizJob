@@ -107,10 +107,13 @@ public class AddJobFragment extends Fragment {
 
     private void setupDropdowns() {
         if (getContext() == null) return;
-        String[] cities = {"תל אביב", "ירושלים", "חיפה", "ראשון לציון", "פתח תקווה", "רחובות", "אשדוד", "נתניה"};
+
+        // Expanded Cities list (matches FilterSystemFragment without "הכל")
+        String[] cities = {"תל אביב", "ירושלים", "חיפה", "ראשון לציון", "פתח תקווה", "רחובות", "אשדוד", "נתניה", "באר שבע", "חולון", "בני ברק", "רמת גן", "אשקלון", "בת ים", "מודיעין", "הרצליה", "כפר סבא", "רעננה", "חדרה", "אילת", "אחר"};
         etLocation.setAdapter(new ArrayAdapter<>(getContext(), android.R.layout.simple_dropdown_item_1line, cities));
 
-        String[] fields = {"מסעדות ומזון", "מכירות ושירות לקוחות", "הדרכה וקייטנות", "שליחויות ולוגיסטיקה", "אחר"};
+        // Expanded Work Fields list
+        String[] fields = {"מסעדות ומזון", "מכירות ושירות לקוחות", "הדרכה וקייטנות", "שליחויות ולוגיסטיקה", "אדמיניסטרציה ומזכירות", "אבטחה ושמירה", "מחשבים והייטק", "ייצור ותעשייה", "סופרמרקטים וקמעונאות", "אירועים והפקות", "אחר"};
         etWorkField.setAdapter(new ArrayAdapter<>(getContext(), android.R.layout.simple_dropdown_item_1line, fields));
 
         String[] scopes = {"משרה מלאה", "משרה חלקית", "משמרות", "פרויקט זמני"};
@@ -224,6 +227,16 @@ public class AddJobFragment extends Fragment {
             return;
         }
 
+        int age = 0;
+        double salary = 0;
+        try {
+            age = Integer.parseInt(etMinAge.getText().toString());
+            salary = Double.parseDouble(etSalary.getText().toString());
+        } catch (NumberFormatException e) {
+            Toast.makeText(getContext(), "שגיאה: נא להזין מספרים תקינים בשדות הגיל והשכר", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         String company = etCompany.getText().toString().trim();
         String location = etLocation.getText().toString().trim();
         String address = etExactAddress.getText().toString().trim();
@@ -232,9 +245,6 @@ public class AddJobFragment extends Fragment {
         String jobScope = etJobScope.getText().toString().trim();
         String jobDesc = etJobDesc.getText().toString().trim();
         String workField = etWorkField.getText().toString().trim();
-
-        int age = Integer.parseInt(etMinAge.getText().toString());
-        double salary = Double.parseDouble(etSalary.getText().toString());
         boolean requiresExp = cbRequiresExperience.isChecked();
 
         String cName = etContactName.getText().toString().trim();
@@ -250,7 +260,11 @@ public class AddJobFragment extends Fragment {
             ownerId = jobToEdit.ownerId;
         } else {
             jobId = mDatabase.push().getKey();
-            ownerId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+            if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+                ownerId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+            } else {
+                ownerId = "unknown";
+            }
         }
 
         Job newJob = new Job(company, location, address, busDesc, title, jobDesc, age, jobScope, workField, requiresExp, salary, cName, cRole, cPhone, busId, ownerId, jobId);
@@ -272,4 +286,4 @@ public class AddJobFragment extends Fragment {
             }
         });
     }
-}   
+}

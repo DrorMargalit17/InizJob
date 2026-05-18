@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -27,7 +28,7 @@ import java.util.List;
  * Class: MyJobsFragment
  * Purpose: Retrieves and displays a list of jobs specifically posted by the currently logged-in business user.
  * * Methods and Actions:
- * 1. onCreateView - Initializes layout and the ManageJobAdapter for editing and deleting.
+ * 1. onCreateView - Initializes layout, the ManageJobAdapter for editing and deleting, and the FAB.
  * 2. loadMyJobs - Queries the "jobs" node in Firebase filtering by the user's ownerId.
  */
 public class MyJobsFragment extends Fragment {
@@ -35,6 +36,11 @@ public class MyJobsFragment extends Fragment {
     private RecyclerView rvMyJobs;
     private ManageJobAdapter adapter;
     private List<Job> myJobsList;
+    private FloatingActionButton fabAddJobMyJobs;
+
+    // Database references and listeners to handle memory management
+    private Query myJobsQuery;
+    private ValueEventListener myJobsListener;
 
     public MyJobsFragment() {
         // Required empty public constructor
@@ -46,6 +52,8 @@ public class MyJobsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_my_jobs, container, false);
 
         rvMyJobs = view.findViewById(R.id.rvMyJobs);
+        fabAddJobMyJobs = view.findViewById(R.id.fabAddJobMyJobs);
+
         rvMyJobs.setLayoutManager(new LinearLayoutManager(getContext()));
 
         myJobsList = new ArrayList<>();
@@ -71,6 +79,19 @@ public class MyJobsFragment extends Fragment {
 
         rvMyJobs.setAdapter(adapter);
 
+        // Set click listener for the FAB to open AddJobFragment
+        fabAddJobMyJobs.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (getActivity() != null) {
+                    getActivity().getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.mainFragmentContainer, new AddJobFragment())
+                            .addToBackStack(null)
+                            .commit();
+                }
+            }
+        });
+
         loadMyJobs();
 
         return view;
@@ -83,9 +104,9 @@ public class MyJobsFragment extends Fragment {
         DatabaseReference jobsRef = FirebaseDatabase.getInstance("https://inizjob4586-default-rtdb.firebaseio.com/").getReference("jobs");
 
         // Real-time query to fetch only the jobs where ownerId matches the current user
-        Query myJobsQuery = jobsRef.orderByChild("ownerId").equalTo(currentUid);
+        myJobsQuery = jobsRef.orderByChild("ownerId").equalTo(currentUid);
 
-        myJobsQuery.addValueEventListener(new ValueEventListener() {
+        myJobsListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 myJobsList.clear();
@@ -104,6 +125,17 @@ public class MyJobsFragment extends Fragment {
                     Toast.makeText(getContext(), "שגיאה בטעינת משרות", Toast.LENGTH_SHORT).show();
                 }
             }
-        });
+        };
+
+        myJobsQuery.addValueEventListener(myJobsListener);
+    }
+
+    // Prevents memory leaks by removing the listener when the fragment is destroyed
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (myJobsQuery != null && myJobsListener != null) {
+            myJobsQuery.removeEventListener(myJobsListener);
+        }
     }
 }

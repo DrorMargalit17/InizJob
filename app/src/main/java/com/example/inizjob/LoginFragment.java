@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,8 +38,9 @@ public class LoginFragment extends Fragment {
     private TextView toggleYouth, toggleBusiness; // UI elements for switching between fragments
     private View inputLayoutBusinessCode; // UI element for business code
     private Button btnLogin; // UI element for login button
-    private TextInputEditText etEmail, etPassword; // UI elements for input fields
+    private TextInputEditText etEmail, etPassword, etBusinessCode; // UI elements for input fields
     private CheckBox cbStayConnected; // UI element for "Stay Connected" checkbox
+    private ProgressBar progressBarLogin; // UI element for loading state
 
     public LoginFragment() {
         // Required empty constructor
@@ -73,7 +75,9 @@ public class LoginFragment extends Fragment {
         btnLogin = view.findViewById(R.id.btnLogin);
         etEmail = view.findViewById(R.id.etEmail);
         etPassword = view.findViewById(R.id.etPassword);
+        etBusinessCode = view.findViewById(R.id.etBusinessCode);
         cbStayConnected = view.findViewById(R.id.cbStayConnected);
+        progressBarLogin = view.findViewById(R.id.progressBarLogin);
 
         // Set default UI state based on isYouthSelected
         updateToggleUI();
@@ -132,9 +136,20 @@ public class LoginFragment extends Fragment {
     private void performLogin() {
         String email = etEmail.getText().toString().trim();
         String password = etPassword.getText().toString().trim();
+        String enteredBusinessCode = "";
+
+        if (etBusinessCode != null && etBusinessCode.getText() != null) {
+            enteredBusinessCode = etBusinessCode.getText().toString().trim();
+        }
 
         if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password)) {
             Toast.makeText(getContext(), "אנא הזן אימייל וסיסמה", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Security check: Ensure business code is entered before attempting login
+        if (!isYouthSelected && TextUtils.isEmpty(enteredBusinessCode)) {
+            Toast.makeText(getContext(), "בעל עסק חייב להזין קוד עסק", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -146,8 +161,9 @@ public class LoginFragment extends Fragment {
             editor.apply(); // Apply changes
         }
 
-        // Disable button to prevent multiple clicks
+        // Disable button and show loader to prevent multiple clicks
         btnLogin.setEnabled(false);
+        progressBarLogin.setVisibility(View.VISIBLE);
 
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
@@ -162,6 +178,7 @@ public class LoginFragment extends Fragment {
                             checkUserType();
                         } else {
                             btnLogin.setEnabled(true);
+                            progressBarLogin.setVisibility(View.GONE);
                             if (task.getException() != null) {
                                 Toast.makeText(getContext(), "שגיאה: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                             }
@@ -177,6 +194,7 @@ public class LoginFragment extends Fragment {
         }
 
         String userId = mAuth.getCurrentUser().getUid();
+        String enteredBusinessCode = etBusinessCode.getText() != null ? etBusinessCode.getText().toString().trim() : "";
 
         // Fetch user data from Firebase Realtime Database using user ID as a key
         mDatabase.child("users").child(userId).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
@@ -192,8 +210,9 @@ public class LoginFragment extends Fragment {
                     DataSnapshot snapshot = task.getResult();
 
                     if (snapshot.exists()) {
-                        // Get user type from the database
+                        // Get user type and business code from the database
                         String userType = snapshot.child("type").getValue(String.class);
+                        String dbBusinessCode = snapshot.child("businessCode").getValue(String.class);
 
                         if (userType != null) {
 
@@ -207,6 +226,18 @@ public class LoginFragment extends Fragment {
                             }
 
                             if (isYouthSelected == isDbUserYouth) {
+                                // Strict verification for Business Users
+                                if (!isYouthSelected) {
+                                    if (dbBusinessCode == null || !dbBusinessCode.equals(enteredBusinessCode)) {
+                                        Toast.makeText(getContext(), "קוד העסק שגוי", Toast.LENGTH_SHORT).show();
+                                        mAuth.signOut(); // Disconnect the unauthorized user
+                                        btnLogin.setEnabled(true);
+                                        progressBarLogin.setVisibility(View.GONE);
+                                        return;
+                                    }
+                                }
+
+                                // Login fully approved
                                 Intent intent = new Intent(getActivity(), MainActivity.class);
                                 intent.putExtra("USER_TYPE", userType);
                                 //clear the screens history so the user can't go back to login
@@ -218,22 +249,26 @@ public class LoginFragment extends Fragment {
                                 Toast.makeText(getContext(), "סוג המשתמש אינו תואם ללשונית שנבחרה", Toast.LENGTH_SHORT).show();
                                 mAuth.signOut(); // Disconnect the incorrect user session
                                 btnLogin.setEnabled(true);
+                                progressBarLogin.setVisibility(View.GONE);
                             }
 
                         } else {
                             // Handle the case where user type is not found in the database
                             Toast.makeText(getContext(), "User type not found", Toast.LENGTH_SHORT).show();
                             btnLogin.setEnabled(true);
+                            progressBarLogin.setVisibility(View.GONE);
                         }
                     } else {
                         // Handle the case where user data is missing from the database
                         Toast.makeText(getContext(), "User data missing", Toast.LENGTH_SHORT).show();
                         btnLogin.setEnabled(true);
+                        progressBarLogin.setVisibility(View.GONE);
                     }
                 } else {
                     // Handle the case where the task is not successful
                     Toast.makeText(getContext(), "Task not successful", Toast.LENGTH_SHORT).show();
                     btnLogin.setEnabled(true);
+                    progressBarLogin.setVisibility(View.GONE);
                 }
             }
         });
