@@ -29,11 +29,12 @@ public class AuthActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Set the theme before creating the activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_auth);
 
-        // Enable offline persistence securely before any other Firebase instance is called
-        // This is critical for preventing crashes on restricted networks (like school Wi-Fi)
+        /* Enable offline persistence securely before any other Firebase instance is called
+        /This is critical for preventing crashes on restricted networks */
         try {
             FirebaseDatabase.getInstance().setPersistenceEnabled(true);
         } catch (Exception e) {
@@ -46,8 +47,11 @@ public class AuthActivity extends AppCompatActivity {
         // Check Stay Connected status before loading UI
         checkStayConnected();
 
+        //Initialize button views
         btnLoginTab = findViewById(R.id.tabLogin);
         btnRegisterTab = findViewById(R.id.tabRegister);
+
+        //Initialize line views
         lineLogin = findViewById(R.id.indicatorLogin);
         lineRegister = findViewById(R.id.indicatorRegister);
 
@@ -56,40 +60,51 @@ public class AuthActivity extends AppCompatActivity {
                 .replace(R.id.fragmentContainer, new LoginFragment())
                 .commit();
 
+        //setup listener for login button
         btnLoginTab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // Replace to LoginFragment
                 switchToLogin(true);
             }
         });
 
+        //setup listener for register button
         btnRegisterTab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // Replace to RegisterFragment
                 switchToRegister();
             }
         });
     }
 
-    // Method to check if user asked to stay connected. If so, fetch their type and move directly to MainActivity
+    /* Method to check if user asked to stay connected.
+    If so, fetch their type and move directly to MainActivity.
+     */
     private void checkStayConnected() {
-        SharedPreferences prefs = getSharedPreferences("InizJobPrefs", Context.MODE_PRIVATE); // Access SharedPreferences
-        boolean stayConnected = prefs.getBoolean("STAY_CONNECTED", false); // Check if user asked to stay connected
-        FirebaseUser currentUser = mAuth.getCurrentUser(); // Check if user is logged in
+        //creating shared preferences to check if user asked to stay connected
+        SharedPreferences prefs = getSharedPreferences("InizJobPrefs", Context.MODE_PRIVATE);
+        //checks if user asked to stay connected
+        boolean stayConnected = prefs.getBoolean("STAY_CONNECTED", false);
+        //checks if user is logged in
+        FirebaseUser currentUser = mAuth.getCurrentUser();
 
         if (currentUser != null) {
+            //If Statement is true, get's the user Id
             if (stayConnected) {
-                // User wants to stay connected, fetch their type to start MainActivity
                 String userId = currentUser.getUid();
 
                 // Fetch user data from Firebase Realtime Database using user ID as a key
                 mDatabase.child("users").child(userId).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
                     @Override
+                    // Callback when data is loaded
                     public void onComplete(@NonNull Task<DataSnapshot> task) {
                         if (task.isSuccessful() && task.getResult() != null && task.getResult().exists()) {
-                            // User type found, start MainActivity
+                            //store the user type to navigate to the right activity
                             String userType = task.getResult().child("type").getValue(String.class);
                             if (userType != null) {
+                                //Move to main activity, according to user type
                                 Intent intent = new Intent(AuthActivity.this, MainActivity.class);
                                 intent.putExtra("USER_TYPE", userType);
                                 startActivity(intent);
@@ -111,6 +126,7 @@ public class AuthActivity extends AppCompatActivity {
         lineLogin.setBackgroundColor(getResources().getColor(R.color.brand_purple));
         btnRegisterTab.setTextColor(getResources().getColor(R.color.text_hint));
         lineRegister.setBackgroundColor(Color.TRANSPARENT);
+
 
         LoginFragment loginFragment = new LoginFragment();
         Bundle args = new Bundle(); // Create a Bundle to pass data to the fragment

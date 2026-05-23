@@ -5,17 +5,12 @@ import java.util.Calendar;
 
 /*
  * class: inputvalidator
- * purpose: provides static methods to validate user inputs (email, password, age, phone) based on specific rules.
- * follows the single responsibility principle (srp).
+ * purpose: provides static methods to validate user inputs
+ *  (email, password, age, phone) based on specific rules.
  */
 public class InputValidator {
 
-    /**
-     * validates if the given string is a properly formatted email address.
-     *
-     * @param email the email string to check.
-     * @return true if the email format is valid, false otherwise.
-     */
+    //This method used to validate email format
     public static boolean isValidEmail(String email) {
         if (email == null) {
             return false;
@@ -24,22 +19,13 @@ public class InputValidator {
             return false;
         }
 
-        // uses android's built-in patterns class to verify standard email format
+        //uses android's built-in patterns class to verify standard email format
         return Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }
 
-    /**
-     * validates if the given password meets the security requirements:
-     * - at least 6 characters long
-     * - contains at least one uppercase letter (a-z)
-     * - contains at least one lowercase letter (a-z)
-     * - contains at least one number (0-9)
-     * - contains at least one special character (e.g., !@#$%^&*)
-     *
-     * @param password the password string to check.
-     * @return true if the password is valid, false otherwise.
-     */
+    /*This method used to validate password format*/
     public static boolean isValidPassword(String password) {
+        //check if password is null
         if (password == null) {
             return false;
         }
@@ -49,21 +35,25 @@ public class InputValidator {
             return false;
         }
 
-        boolean hasUppercase = false;
-        boolean hasLowercase = false;
-        boolean hasSpecialChar = false;
-        boolean hasDigit = false; // added check for digits
+        // initialize flags for each condition
+        boolean hasUppercase = false; // flag uppercase found
+        boolean hasLowercase = false; // flag lowercase found
+        boolean hasSpecialChar = false; // flag special character found
+        boolean hasDigit = false; // flag digit found
 
-        // loop through each character to check conditions without using lambdas
+        // loop through each character to check conditions
         for (int i = 0; i < password.length(); i++) {
             char c = password.charAt(i);
-
+            // check for uppercase letter
             if (Character.isUpperCase(c)) {
                 hasUppercase = true;
+                // check for lowercase letter
             } else if (Character.isLowerCase(c)) {
                 hasLowercase = true;
+                // check for digit
             } else if (Character.isDigit(c)) {
-                hasDigit = true; // flag digit found
+                hasDigit = true;
+                // check for special character
             } else if (!Character.isLetterOrDigit(c)) {
                 hasSpecialChar = true;
             }
@@ -77,21 +67,15 @@ public class InputValidator {
         }
     }
 
-    /**
-     * validates if the user's age is exactly between 14 and 18.
-     *
-     * @param birthYear  the user's birth year.
-     * @param birthMonth the user's birth month.
-     * @param birthDay   the user's birth day.
-     * @return true if age is between 14 and 18, false otherwise.
-     */
+    /*This method used to validate age format*/
     public static boolean isValidAge(int birthYear, int birthMonth, int birthDay) {
-        Calendar today = Calendar.getInstance();
-        int currentYear = today.get(Calendar.YEAR);
-        int currentMonth = today.get(Calendar.MONTH) + 1; // calendar.month is 0-indexed (0-11)
-        int currentDay = today.get(Calendar.DAY_OF_MONTH);
+        // get current date
+        Calendar today = Calendar.getInstance(); //create a calendar instance
+        int currentYear = today.get(Calendar.YEAR);// Set the current year
+        int currentMonth = today.get(Calendar.MONTH) + 1; // Set the current month
+        int currentDay = today.get(Calendar.DAY_OF_MONTH); // Set the current day
 
-        int age = currentYear - birthYear;
+        int age = currentYear - birthYear; // calculate age
 
         // adjust age if birthday hasn't occurred yet this year
         if (currentMonth < birthMonth) {
@@ -100,6 +84,7 @@ public class InputValidator {
             age--;
         }
 
+        // check if age is between 14 and 18
         if (age >= 14 && age <= 18) {
             return true;
         } else {
@@ -107,18 +92,14 @@ public class InputValidator {
         }
     }
 
-    /**
-     * validates if the given string is a valid phone number.
-     * it must contain exactly 9 or 10 digits.
-     *
-     * @param phone the phone string to check.
-     * @return true if the phone format is valid, false otherwise.
-     */
+    /*This method used to validate phone format*/
     public static boolean isValidPhone(String phone) {
+        // check if phone is null
         if (phone == null) {
             return false;
         }
 
+        // remove leading and trailing spaces
         String cleanPhone = phone.trim();
 
         // check length (must be 9 or 10)

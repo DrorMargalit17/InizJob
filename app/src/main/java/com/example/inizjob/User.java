@@ -5,15 +5,6 @@ import java.io.Serializable;
 /*
  * Class: User
  * Purpose: Data model representing a user in the system.
- * Contains both Youth and Business fields.
- * * Fields:
- * - fullName: User's name or business name.
- * - email: User's login email.
- * - phone: Contact number.
- * - type: "Youth" or "Business".
- * - businessCode: Relevant only for Business users.
- * - birthDate: Relevant only for Youth users.
- * - avatarType: "boy", "girl", or "default".
  */
 public class User implements Serializable {
     // Constants for User Types (Single Source of Truth)

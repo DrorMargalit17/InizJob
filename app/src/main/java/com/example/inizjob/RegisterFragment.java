@@ -33,11 +33,6 @@ import java.util.Calendar;
 /*
  * class: registerfragment
  * purpose: handles new user registration.
- * * methods and actions list:
- * 1. oncreateview - initializes layout and ui references, including birth date dialog logic.
- * 2. showDatePicker - opens a native android calendar locked between ages 14 and 18.
- * 3. performregistration - validates form (including date for youth or code for business) and creates a new user.
- * 4. updatetoggleui - switches visuals based on youth/business selection.
  */
 public class RegisterFragment extends Fragment {
 
@@ -46,25 +41,31 @@ public class RegisterFragment extends Fragment {
     private DatabaseReference mDatabase; // Firebase Realtime Database instance
 
     private TextView toggleYouth, toggleBusiness; // UI elements for switching between fragments
-    private TextInputLayout businessLayout; // UI element for business code
-    private TextInputLayout layoutBirthDate; // UI element for birth date container
+    //UI elements for input layouts for birth date and business code
+    private TextInputLayout businessLayout, layoutBirthDate;
     private Button btnRegister; // UI element for registration button
-    private TextInputEditText etFullName, etEmail, etPhone, etPassword, etBusinessCode, etBirthDate; // UI elements for input fields
+
+    //UI elements for input fields
+    private TextInputEditText etFullName, etEmail, etPhone, etPassword, etBusinessCode, etBirthDate;
 
     @Nullable
     @Override
+    /*restart the XML, sets the click listeners for the buttons*/
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_register, container, false);
 
         mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance("https://inizjob4586-default-rtdb.firebaseio.com/").getReference();
 
+        //Initialize toggles
         toggleYouth = view.findViewById(R.id.regToggleYouth);
         toggleBusiness = view.findViewById(R.id.regToggleBusiness);
+
+        //Initialize input layout
         businessLayout = view.findViewById(R.id.businessLayout);
         layoutBirthDate = view.findViewById(R.id.layoutBirthDate);
-        btnRegister = view.findViewById(R.id.btnRegister);
 
+        //Initialize input fields
         etFullName = view.findViewById(R.id.etFullName);
         etEmail = view.findViewById(R.id.etRegEmail);
         etPhone = view.findViewById(R.id.etPhone);
@@ -72,65 +73,78 @@ public class RegisterFragment extends Fragment {
         etBusinessCode = view.findViewById(R.id.etRegBusinessCode);
         etBirthDate = view.findViewById(R.id.etBirthDate);
 
-        // Open DatePicker when birth date field is clicked
+        //Initialize register Button
+        btnRegister = view.findViewById(R.id.btnRegister);
+
+
+        //setup listener to open DatePicker when birth date field is clicked
         etBirthDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //open date picker
                 showDatePicker();
             }
         });
 
-        // change to youth
+        // setup listener for change UI to youth
         toggleYouth.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                isYouthSelected = true;
+                isYouthSelected = true; // set to youth
+                //call the method and update UI to youth
                 updateToggleUI();
             }
         });
 
-        //change to business
+        //setup listener for change UI to business
         toggleBusiness.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                isYouthSelected = false;
+                isYouthSelected = false; // set to business
+                //call the method and update UI to business
                 updateToggleUI();
             }
         });
 
-        //perform registration
+        //setup listener for performing registration
         btnRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //when button clicked, call method to perform registration
                 performRegistration();
             }
         });
 
-        // set default UI state
+        //set default UI state to youth
         updateToggleUI();
 
         return view;
     }
 
+    /*This method shows the date picker dialog
+    when the birth date input is clicked*/
     private void showDatePicker() {
         if (getContext() == null) return;
 
-        Calendar calendar = Calendar.getInstance();
-        int currentYear = calendar.get(Calendar.YEAR);
-        int currentMonth = calendar.get(Calendar.MONTH);
-        int currentDay = calendar.get(Calendar.DAY_OF_MONTH);
+        // Initialize the date picker
+        Calendar calendar = Calendar.getInstance(); //create a calendar instance
+        int currentYear = calendar.get(Calendar.YEAR) - 16; // Set the current year and age limit
+        int currentMonth = calendar.get(Calendar.MONTH); // Set the current month
+        int currentDay = calendar.get(Calendar.DAY_OF_MONTH); // Set the current day
 
+        // Create and show the date picker dialog, and set the listener
         DatePickerDialog datePickerDialog = new DatePickerDialog(getContext(),
                 new DatePickerDialog.OnDateSetListener() {
                     @Override
+                    // Callback when a date is selected, and update the input field after selection
                     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                        // Month is 0-indexed in Calendar
                         String selectedDate = dayOfMonth + "/" + (month + 1) + "/" + year;
+                        // Set the selected date to the input field
                         etBirthDate.setText(selectedDate);
                     }
                 }, currentYear - 16, currentMonth, currentDay); // Default open showing age 16
 
-        // Set limits for the calendar (14 to 18 years old)
+        // Set the date range of the years for the date picker
         Calendar minAge = Calendar.getInstance();
         minAge.add(Calendar.YEAR, -18);
         Calendar maxAge = Calendar.getInstance();
@@ -138,11 +152,11 @@ public class RegisterFragment extends Fragment {
 
         datePickerDialog.getDatePicker().setMinDate(minAge.getTimeInMillis());
         datePickerDialog.getDatePicker().setMaxDate(maxAge.getTimeInMillis());
-
+        // Show the date picker
         datePickerDialog.show();
     }
 
-    // Method to register to the app
+    // This method performs the registration process
     private void performRegistration() {
         //gets the data from the input fields
         String email = etEmail.getText().toString().trim();
@@ -152,25 +166,25 @@ public class RegisterFragment extends Fragment {
         String businessCode = etBusinessCode.getText().toString().trim();
         String birthDate = "";
 
-        //checks that all fields are filled
+        //checks that password and email fields are filled
         if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password) || TextUtils.isEmpty(fullName) || TextUtils.isEmpty(phone)) {
             Toast.makeText(getContext(), "Please fill all required fields", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // validate email format using inputvalidator
+        // validate email format using inputValidator
         if (!InputValidator.isValidEmail(email)) {
             Toast.makeText(getContext(), "Please enter a valid email address", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // validate phone format using inputvalidator
+        // validate phone format using inputValidator
         if (!InputValidator.isValidPhone(phone)) {
             Toast.makeText(getContext(), "Phone number must contain 9 or 10 digits", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // validate password complexity using inputvalidator
+        // validate password complexity using inputValidator
         if (!InputValidator.isValidPassword(password)) {
             Toast.makeText(getContext(), "Password must be at least 6 characters, contain uppercase, lowercase, a number, and a special character", Toast.LENGTH_LONG).show();
             return;
@@ -180,14 +194,17 @@ public class RegisterFragment extends Fragment {
         String type;
         if (isYouthSelected) {
             type = User.TYPE_YOUTH;
+            //If youth, validate birth date
             String selectedDate = etBirthDate.getText().toString().trim();
 
+            // Check if birth date is empty, If so, show a toast
             if (TextUtils.isEmpty(selectedDate)) {
                 Toast.makeText(getContext(), "Please select a full birth date", Toast.LENGTH_SHORT).show();
                 return;
             }
 
             try {
+                // Parse birth date to validate age
                 String[] parts = selectedDate.split("/");
                 int day = Integer.parseInt(parts[0]);
                 int month = Integer.parseInt(parts[1]);
@@ -198,13 +215,16 @@ public class RegisterFragment extends Fragment {
                     Toast.makeText(getContext(), "Registration is only allowed for ages 14 to 18", Toast.LENGTH_LONG).show();
                     return;
                 }
+                // Set birth date
                 birthDate = selectedDate;
+                //If birth date is not valid, show a toast
             } catch (Exception e) {
                 Toast.makeText(getContext(), "Error reading birth date", Toast.LENGTH_SHORT).show();
                 return;
             }
             businessCode = ""; // Clear for youth
         } else {
+            //If business, validate business code
             type = User.TYPE_BUSINESS;
             // checks businessCode field is not empty
             if (TextUtils.isEmpty(businessCode)) {
@@ -214,24 +234,28 @@ public class RegisterFragment extends Fragment {
             birthDate = ""; // Clear for business
         }
 
-        // Disable button to prevent multiple clicks and crashes
+        // Disable button after clicking once
+        // Prevents multiple clicks and crashes
         btnRegister.setEnabled(false);
 
-        //Creating final variables to prevent data from changing during the registration process
+        //Creating final variables to prevent data from changing
+        // during the registration process
         final String finalType = type;
         final String finalBusinessCode = businessCode;
         final String savedBirthDate = birthDate;
 
-        // Firebase registration
+        // Firebase registration, setup listener
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
                     @Override
+                    //callback when registration is successful
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         // Protect against memory leaks and fragment destruction
                         if (!isAdded() || getActivity() == null) {
                             return;
                         }
 
+                        //If firebase user is null, enable button and return
                         if (task.isSuccessful()) {
                             FirebaseUser firebaseUser = mAuth.getCurrentUser();
                             if (firebaseUser == null) {
@@ -239,29 +263,35 @@ public class RegisterFragment extends Fragment {
                                 return;
                             }
 
+                            //If firebase user is not null, get the user ID
                             String userId = firebaseUser.getUid();
 
-                            // Creating new user WITH the default avatar type for clean DB architecture
+                            //Creating new user with the default avatar type for clean DB architecture
                             User newUser = new User(fullName, email, phone, finalType, finalBusinessCode, savedBirthDate, "default");
 
+                            //database reference points to the users node and saves the new user with the user ID
                             mDatabase.child("users").child(userId).setValue(newUser)
                                     .addOnCompleteListener(new OnCompleteListener<Void>() {
                                         @Override
+                                        //callback when data is saved
                                         public void onComplete(@NonNull Task<Void> dbTask) {
                                             // Protect against memory leaks
                                             if (!isAdded() || getActivity() == null) {
                                                 return;
                                             }
 
+                                            //If data is saved (register success),
+                                            // enable button and show toast
                                             if (dbTask.isSuccessful()) {
                                                 Toast.makeText(getContext(), "Registration Successful!", Toast.LENGTH_LONG).show();
                                                 mAuth.signOut();
                                                 btnRegister.setEnabled(true);
-                                                //return to login
+                                                //once registered, switch to login fragment automatically
                                                 if (getActivity() instanceof AuthActivity) {
                                                     ((AuthActivity) getActivity()).switchToLogin(isYouthSelected);
                                                 }
                                             } else {
+                                                //If register process failed, enable button and show toast
                                                 btnRegister.setEnabled(true);
                                                 Toast.makeText(getContext(), "Saving details failed.", Toast.LENGTH_SHORT).show();
                                             }
@@ -270,11 +300,15 @@ public class RegisterFragment extends Fragment {
 
                         } else {
                             // notify the user of a failure during registration
-                            btnRegister.setEnabled(true);
+                            //related to email address already in use
+                            btnRegister.setEnabled(true); // Enable button
                             if (task.getException() != null) {
+                                /*Alerting the user that's he already registered and
+                                transfer to login screen */
                                 if (task.getException() instanceof FirebaseAuthUserCollisionException) {
                                     Toast.makeText(getContext(), "This email is already registered. Please login.", Toast.LENGTH_LONG).show();
                                 } else {
+                                    // show a toast mentioning there's an error
                                     Toast.makeText(getContext(), "Error: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
                                 }
                             }
@@ -283,6 +317,8 @@ public class RegisterFragment extends Fragment {
                 });
     }
 
+    //This method used to update the UI based on the user's choice
+    //register as youth or business
     void updateToggleUI() {
         if (getContext() == null) {
             return;

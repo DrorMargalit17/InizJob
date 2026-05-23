@@ -4,40 +4,32 @@ import java.io.Serializable;
 
 /*
  * Class: Cv
- * Purpose: Data model for a Curriculum Vitae object.
- * * Fields:
- * - cvTitle: The specific purpose/name of this CV (e.g., "Waitressing").
- * - summary: Professional profile/objective.
- * - education: Schools and majors.
- * - experience: Work and volunteering history.
- * - skills: Technical and practical skills.
- * - achievements: Projects and initiatives.
- * - traits: Personal strengths and characteristics.
- * - uniqueDetail: Personal unique information.
+ * Purpose: Data model for a CV object.
  */
 public class Cv implements Serializable {
-    public String cvId;
-    public String ownerId;
-    public String fullName;
-    public String phone;
-    public String email;
+    public String cvId; // Unique identifier for the CV
+    public String ownerId; // ID of the user who owns the CV
+    public String fullName; // Full name of the user
+    public String phone; // Phone number of the user
+    public String email; // Email address of the user
 
-    public String cvTitle;      // כותרת/מטרת קורות החיים
+    public String cvTitle; // Title of the CV
 
-    // New Expanded Categories
-    public String summary;      // תמצית מקצועית
-    public String education;    // השכלה
-    public String experience;   // ניסיון תעסוקתי והתנדבות
-    public String skills;       // כישורים ומיומנויות
-    public String achievements; // הישגים ויוזמות
-    public String traits;       // תכונות ויכולות אישיות
-    public String uniqueDetail; // מידע נוסף וייחוד אישי
+    public String summary;  // Professionalism Summary for the CV
+    public String education; // Education details for the CV
+    public String experience; // Experience details for the CV
+    public String skills; // Skills details for the CV
+    public String achievements; // Achievements details for the CV
+    public String traits; // Traits details for the CV
+    public String uniqueDetail; // Unique details for the CV
 
-    public String generatedText;
+    public String generatedText; // Generated text for the CV
 
     public Cv() {
+        //Required empty constructor
     }
 
+    // Constructor with all fields
     public Cv(String cvId, String ownerId, String fullName, String phone, String email, String cvTitle,
               String summary, String education, String experience, String skills,
               String achievements, String traits, String uniqueDetail, String generatedText) {

@@ -77,7 +77,7 @@
                 android:indeterminateTint="@color/brand_purple" />
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvHorizontalJobs"
+                android:id="@+id/rvVerticalJobs"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="horizontal"

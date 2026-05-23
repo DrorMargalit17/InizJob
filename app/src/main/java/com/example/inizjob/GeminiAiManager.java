@@ -19,16 +19,26 @@ import java.util.concurrent.Executors;
 public class GeminiAiManager {
 
     public GeminiAiManager() {
+        //empty constructor required
     }
 
+    /**This method sends user raw data to AI to create a professional CV document. according to this steps:
+     * 1. Create a GenerativeModel instance with the provided API key.
+     * 2. Create a Content object with the prompt text.
+     * 3. Use the GenerativeModel to generate content based on the prompt.
+     * 4. Set up a callback to handle the response.
+     * 5. Execute the callback when the response is received.
+     * */
+
     public void generateCvText(String name, String phone, String email, Cv cvData, AiCallback callback) {
+        // Set up the Gemini API key
         String apiKey = BuildConfig.GEMINI_API_KEY;
 
+        // Create a GenerativeModel instance
         GenerativeModel gm = new GenerativeModel("gemini-2.5-flash", apiKey);
         GenerativeModelFutures model = GenerativeModelFutures.from(gm);
 
-        // Advanced prompt with professional category names
-        // updated to be optimized for mobile screens and WhatsApp messaging
+        /** Advanced prompt with professional category names */
         String promptText = "You are an expert resume writer. Create a professional CV in HEBREW. " +
                 "Take the provided raw data and expand it into beautifully crafted, official-sounding sentences. " +
                 "Format the output as a clean text document optimized for mobile screens and WhatsApp messaging. " +
@@ -53,11 +63,16 @@ public class GeminiAiManager {
                 "Unique Detail: " + cvData.uniqueDetail + "\n\n" +
                 "Important: Do not invent facts, only enhance the phrasing. Write ONLY the CV content without introductory greetings.";
 
+        /*create a Content object with the prompt text*/
         Content content = new Content.Builder().addText(promptText).build();
+
+        // Use the GenerativeModel to generate content based on the prompt
         ListenableFuture<GenerateContentResponse> response = model.generateContent(content);
 
+        // Handle the response when it's received
         Futures.addCallback(response, new FutureCallback<GenerateContentResponse>() {
             @Override
+            //If the request is successful, pass the generated text to the callback
             public void onSuccess(GenerateContentResponse result) {
                 if (callback != null) {
                     callback.onSuccess(result.getText());
@@ -65,11 +80,14 @@ public class GeminiAiManager {
             }
 
             @Override
+            // Handle any errors that occur during the request
             public void onFailure(Throwable t) {
                 if (callback != null) {
+                    // Pass the error message to the callback
                     callback.onFailure(t.getMessage());
                 }
             }
+            //Execute the thread when the response is received
         }, Executors.newSingleThreadExecutor());
     }
 }

@@ -34,19 +34,24 @@ import com.google.firebase.database.FirebaseDatabase;
  */
 public class ProfileFragment extends Fragment {
 
-    private ImageView imgProfileAvatar;
-    private TextView tvProfileName, tvProfileEmail, tvProfileTypeBadge;
-    private TextView tvRowJobsText, tvRowBusinessCodeText;
 
+    private ImageView imgProfileAvatar; // UI element for profile avatar image - changes color based on avatar type
+    private TextView tvProfileName, tvProfileEmail, tvProfileTypeBadge; // text for displaying user info
+    private TextView tvRowJobsText, tvRowBusinessCodeText; // UI elements for menu row text
+    /** clickable layout containers acting as menu buttons */
     private LinearLayout rowEditProfile, rowJobs, rowBusinessCode, rowAbout, rowRights, rowLogout;
+
+    /** Visual separators lines that hide/show alongside their respective rows */
     private View dividerBusinessCode, dividerJobs;
-    private ProgressBar progressBarProfile;
+    private ProgressBar progressBarProfile; // UI element for progress bar
+
+    /** The main container wrapping all content, hidden during data fetch */
     private LinearLayout layoutProfileContent;
 
-    private FirebaseAuth mAuth;
-    private DatabaseReference mDatabase;
+    private FirebaseAuth mAuth; // Firebase Authentication instance
+    private DatabaseReference mDatabase; // Firebase Realtime Database instance
 
-    private String currentUserType = "";
+    private String currentUserType = ""; // store user type (business/youth) to handle navigation logic
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -54,18 +59,21 @@ public class ProfileFragment extends Fragment {
 
     @Nullable
     @Override
+    //Restarts the XML
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_profile, container, false);
     }
 
+    // Initialize UI elements and set click listeners for all menu buttons
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // Initialize Firebase and Database references
         mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance("https://inizjob4586-default-rtdb.firebaseio.com/").getReference();
 
-        // Header Views
+        //Initialize UI elements related to the profile info
         imgProfileAvatar = view.findViewById(R.id.imgProfileAvatar);
         tvProfileName = view.findViewById(R.id.tvProfileName);
         tvProfileEmail = view.findViewById(R.id.tvProfileEmail);
@@ -73,22 +81,24 @@ public class ProfileFragment extends Fragment {
         progressBarProfile = view.findViewById(R.id.progressBarProfile);
         layoutProfileContent = view.findViewById(R.id.layoutProfileContent);
 
-        // Menu Rows
+        //Initialize UI elements related to the jobs menu button and text
         rowEditProfile = view.findViewById(R.id.rowEditProfile);
-
         rowJobs = view.findViewById(R.id.rowJobs);
         tvRowJobsText = view.findViewById(R.id.tvRowJobsText);
         dividerJobs = view.findViewById(R.id.dividerJobs);
 
+        //Initialize UI elements related to the business code row
         rowBusinessCode = view.findViewById(R.id.rowBusinessCode);
         tvRowBusinessCodeText = view.findViewById(R.id.tvRowBusinessCodeText);
         dividerBusinessCode = view.findViewById(R.id.dividerBusinessCode);
 
+        //Initialize UI elements related to the other menu buttons
         rowAbout = view.findViewById(R.id.rowAbout);
         rowRights = view.findViewById(R.id.rowRights);
         rowLogout = view.findViewById(R.id.rowLogout);
 
-        // Explicit listeners without Lambdas
+        /*set click listeners for edit profile button
+        changes to editProfile fragment when clicked*/
         rowEditProfile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -101,10 +111,12 @@ public class ProfileFragment extends Fragment {
             }
         });
 
+        /*set click listeners for saved jobs button
+        changes to savedJobs fragment when clicked
+        Only accessible for youth users!*/
         rowJobs.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Now only accessible to Youth users
                 if (getActivity() != null && !User.TYPE_BUSINESS.equals(currentUserType)) {
                     getActivity().getSupportFragmentManager().beginTransaction()
                             .replace(R.id.mainFragmentContainer, new SavedJobsFragment())
@@ -114,16 +126,23 @@ public class ProfileFragment extends Fragment {
             }
         });
 
+        /*set click listeners for info page button
+        changes to infoPage fragment when clicked*/
         rowAbout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //create the fragment
                 InfoPageFragment infoFragment = new InfoPageFragment();
+                //create the data bundle to pass to the fragment
                 Bundle args = new Bundle();
 
+                //gets the title and content from the string resources
                 args.putString("INFO_TITLE", getString(R.string.about_title));
                 args.putString("INFO_CONTENT", getString(R.string.about_content));
+                //passes the bundle with the data to the fragment
                 infoFragment.setArguments(args);
 
+                //replace the current fragment with the new one
                 if (getActivity() != null) {
                     getActivity().getSupportFragmentManager().beginTransaction()
                             .replace(R.id.mainFragmentContainer, infoFragment)
@@ -133,16 +152,23 @@ public class ProfileFragment extends Fragment {
             }
         });
 
+        /*set click listeners for rights page button
+        changes to infoPage fragment when clicked*/
         rowRights.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //create the fragment
                 InfoPageFragment infoFragment = new InfoPageFragment();
+                //create the data bundle to pass to the fragment
                 Bundle args = new Bundle();
 
+                //gets the title and content from the string resources
                 args.putString("INFO_TITLE", getString(R.string.rights_title));
                 args.putString("INFO_CONTENT", getString(R.string.rights_content));
+                //passes the bundle with the data to the fragment
                 infoFragment.setArguments(args);
 
+                //replace the current fragment with the new one
                 if (getActivity() != null) {
                     getActivity().getSupportFragmentManager().beginTransaction()
                             .replace(R.id.mainFragmentContainer, infoFragment)
@@ -152,16 +178,25 @@ public class ProfileFragment extends Fragment {
             }
         });
 
+        /*set click listeners for logout button
+        when clicked, call the performLogout method and
+        return to the login screen*/
         rowLogout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //perform logout
                 performLogout();
             }
         });
 
+        /*Call the method to fetch the user profile data
+        from real time database*/
         fetchUserProfile();
     }
 
+    /*Fetches the current user's profile data from firebase
+    real time database. Manages the loading state by
+    showing/hiding the ProgressBar and main content */
     private void fetchUserProfile() {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser == null) {
@@ -169,14 +204,18 @@ public class ProfileFragment extends Fragment {
             return;
         }
 
-        String uid = currentUser.getUid();
+        String uid = currentUser.getUid(); // Get user ID
+        // Fetch user data from the database, and create listener to update UI
         mDatabase.child("users").child(uid).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
             @Override
+            //Callback when data is loaded
             public void onComplete(@NonNull Task<DataSnapshot> task) {
                 if (!isAdded() || getActivity() == null) {
                     return;
                 }
 
+                /*If task is successful, get the data and update the UI
+                 based on the user profile data.*/
                 if (task.isSuccessful()) {
                     DataSnapshot snapshot = task.getResult();
                     if (snapshot != null && snapshot.exists()) {
@@ -191,20 +230,28 @@ public class ProfileFragment extends Fragment {
                     }
                 }
 
-                // Hide progress bar and show content after loading is done
+                //Hide progress bar and show content after the profile data is loaded
                 progressBarProfile.setVisibility(View.GONE);
                 layoutProfileContent.setVisibility(View.VISIBLE);
             }
         });
     }
 
+    /* This method update the UI based on the user profile data
+    * It gets the user's type and sets the badge and
+    * menu buttons visibility accordingly. It sets the avatar color
+    * based on the avatar type. It sets the business code if
+    * the user is a business, and hide it if the user type is youth
+    * */
     private void updateUI(User userProfile) {
+        //stores the user type
         currentUserType = userProfile.type;
 
+        //sets the user's full name and email
         tvProfileName.setText(userProfile.fullName);
         tvProfileEmail.setText(userProfile.email);
 
-        // Safely check avatar type and apply color tint to simulate different avatars
+        // check avatar type and apply color based on user's choice
         if ("boy".equals(userProfile.avatarType)) {
             imgProfileAvatar.setColorFilter(Color.parseColor("#1E88E5"), PorterDuff.Mode.SRC_IN);
         } else if ("girl".equals(userProfile.avatarType)) {
@@ -214,34 +261,40 @@ public class ProfileFragment extends Fragment {
             imgProfileAvatar.setColorFilter(Color.parseColor("#6200EE"), PorterDuff.Mode.SRC_IN);
         }
 
+        // Set badge based on user type
         if (User.TYPE_BUSINESS.equals(userProfile.type)) {
             tvProfileTypeBadge.setText("עסק");
 
-            // Hide the jobs/cv row entirely for business
+            //Hides the jobs button for a business users
             rowJobs.setVisibility(View.GONE);
             dividerJobs.setVisibility(View.GONE);
 
+            //Reveal the business code row and divider for business users
             rowBusinessCode.setVisibility(View.VISIBLE);
             dividerBusinessCode.setVisibility(View.VISIBLE);
 
+            //sets business code visibility if exists
             if (userProfile.businessCode != null && !userProfile.businessCode.isEmpty()) {
                 tvRowBusinessCodeText.setText(userProfile.businessCode);
             } else {
-                tvRowBusinessCodeText.setText("לא הוזן");
+                tvRowBusinessCodeText.setText("Bussines Code Missing");
             }
 
         } else {
-            // Youth gets Saved Jobs access in profile
+            /*sets user type to youth, reveal the jobs button
+             and hides the business code row*/
             tvProfileTypeBadge.setText("נוער");
             rowJobs.setVisibility(View.VISIBLE);
             dividerJobs.setVisibility(View.VISIBLE);
-            tvRowJobsText.setText("המשרות ששמרתי");
+            tvRowJobsText.setText("המשרות ששמרתי"); //changes the text of the button
 
             rowBusinessCode.setVisibility(View.GONE);
             dividerBusinessCode.setVisibility(View.GONE);
         }
     }
 
+    /*This method logs the user out of the app when the
+    logout button is clicked, and returns to the login screen*/
     private void performLogout() {
         mAuth.signOut();
         if (getActivity() != null) {

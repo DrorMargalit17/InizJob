@@ -31,13 +31,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class EditProfileFragment extends Fragment {
-
-    private TextInputEditText etFullName, etPhone, etBirthDate, etBusinessCode; // UI elements for input fields
+    //input fields for full name, phone, birth date and business code edit
+    private TextInputEditText etFullName, etPhone, etBirthDate, etBusinessCode;
+    //input layouts for birth date and business code edit
     private TextInputLayout layoutEditBirthDate, layoutEditBusinessCode;
+    //UI elements that stores and show the avatar selection
     private ImageView imgSelectBoy, imgSelectGirl;
-    private MaterialButton btnSaveProfile; // UI element for save button
+    //UI element for save button
+    private MaterialButton btnSaveProfile;
 
-    // UI element for back navigation
+    // UI element for back button navigation
     private ImageButton btnBackEditProfile;
 
     private FirebaseAuth mAuth; // Firebase Authentication instance
@@ -52,40 +55,46 @@ public class EditProfileFragment extends Fragment {
 
     @Nullable
     @Override
+    //load the XML and sets the click listeners for the buttons
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_edit_profile, container, false);
 
         mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance("https://inizjob4586-default-rtdb.firebaseio.com/").getReference();
 
+        //If there's user logged in, get it's ID
         if (mAuth.getCurrentUser() != null) {
             userId = mAuth.getCurrentUser().getUid();
         }
 
-        // Initialize Views
+        // Initialize input fields view
         etFullName = view.findViewById(R.id.etEditFullName);
         etPhone = view.findViewById(R.id.etEditPhone);
-
-        layoutEditBirthDate = view.findViewById(R.id.layoutEditBirthDate);
         etBirthDate = view.findViewById(R.id.etEditBirthDate);
-
-        layoutEditBusinessCode = view.findViewById(R.id.layoutEditBusinessCode);
         etBusinessCode = view.findViewById(R.id.etEditBusinessCode);
 
+        // Initialize layout views for birth date and business code
+        layoutEditBirthDate = view.findViewById(R.id.layoutEditBirthDate);
+        layoutEditBusinessCode = view.findViewById(R.id.layoutEditBusinessCode);
+
+        //Initialize avatar selection views
         imgSelectBoy = view.findViewById(R.id.imgSelectBoy);
         imgSelectGirl = view.findViewById(R.id.imgSelectGirl);
 
+        // Initialize save button and back button views
         btnSaveProfile = view.findViewById(R.id.btnSaveProfile);
         btnBackEditProfile = view.findViewById(R.id.btnBackEditProfile);
 
         // Load user existing data
         loadUserData();
 
-        // Setup Avatar Listeners
+        /*Setup Avatar Listeners based on the user's choice
+        * update the avatar UI accordingly */
         imgSelectBoy.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 selectedAvatar = "boy";
+                //update the avatar UI to boy
                 updateAvatarUI();
             }
         });
@@ -94,27 +103,31 @@ public class EditProfileFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 selectedAvatar = "girl";
+                //update the avatar UI to girl
                 updateAvatarUI();
             }
         });
 
-        // Setup DatePicker
+        //Setup listener for birth date input
         etBirthDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //when clicked, perform the date picker method
                 showDatePicker();
             }
         });
 
-        //save changes
+        //Setup listener for save profile changes button
         btnSaveProfile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //when clicked, perform the save changes method
                 saveProfileChanges();
             }
         });
 
-        // Handle back button click
+        //Setup listener for back button
+        // replace the fragment back to the previous one when clicked
         btnBackEditProfile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -127,12 +140,13 @@ public class EditProfileFragment extends Fragment {
         return view;
     }
 
+    //This method updates the avatar UI based on the user's choice
     private void updateAvatarUI() {
-        // Reset backgrounds
+        //Reset backgrounds
         imgSelectBoy.setBackgroundResource(R.drawable.bg_search_bar);
         imgSelectGirl.setBackgroundResource(R.drawable.bg_search_bar);
 
-        // Highlight selection
+        // Highlight selection and apply color
         if ("boy".equals(selectedAvatar)) {
             imgSelectBoy.setBackgroundResource(R.drawable.bg_toggle_container);
         } else if ("girl".equals(selectedAvatar)) {
@@ -140,23 +154,30 @@ public class EditProfileFragment extends Fragment {
         }
     }
 
+    /*This method shows the date picker dialog
+    when the birth date input is clicked*/
     private void showDatePicker() {
         if (getContext() == null) return;
 
-        Calendar calendar = Calendar.getInstance();
-        int currentYear = calendar.get(Calendar.YEAR) - 16;
-        int currentMonth = calendar.get(Calendar.MONTH);
-        int currentDay = calendar.get(Calendar.DAY_OF_MONTH);
+        // Initialize the date picker
+        Calendar calendar = Calendar.getInstance(); //create a calendar instance
+        int currentYear = calendar.get(Calendar.YEAR) - 16; // Set the current year and age limit
+        int currentMonth = calendar.get(Calendar.MONTH); // Set the current month
+        int currentDay = calendar.get(Calendar.DAY_OF_MONTH); // Set the current day
 
+        // Create and show the date picker dialog, and set the listener
         DatePickerDialog datePickerDialog = new DatePickerDialog(getContext(),
                 new DatePickerDialog.OnDateSetListener() {
                     @Override
+                    // Callback when a date is selected, and update the input field after selection
                     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
                         String selectedDate = dayOfMonth + "/" + (month + 1) + "/" + year;
+                        // Set the selected date to the input field
                         etBirthDate.setText(selectedDate);
                     }
                 }, currentYear, currentMonth, currentDay);
 
+        // Set the date range of the years for the date picker
         Calendar minAge = Calendar.getInstance();
         minAge.add(Calendar.YEAR, -18);
         Calendar maxAge = Calendar.getInstance();
@@ -164,18 +185,23 @@ public class EditProfileFragment extends Fragment {
 
         datePickerDialog.getDatePicker().setMinDate(minAge.getTimeInMillis());
         datePickerDialog.getDatePicker().setMaxDate(maxAge.getTimeInMillis());
+        // Show the date picker
         datePickerDialog.show();
     }
 
-    //gets user current data, and load it to the UI
+    /*This method gets the user data from the database based on his ID
+    * and updates the UI accordingly to show the current user's data
+    * before the user edits it */
     private void loadUserData() {
         if (userId == null) return;
 
+        // Fetch user data from the database and create listener to update UI
         mDatabase.child("users").child(userId).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DataSnapshot> task) {
                 if (!isAdded() || getActivity() == null) return;
 
+                // If task is successful, get the data and update the UI
                 if (task.isSuccessful() && task.getResult() != null) {
                     User user = task.getResult().getValue(User.class);
                     if (user != null) {
@@ -183,13 +209,16 @@ public class EditProfileFragment extends Fragment {
                         etPhone.setText(user.phone);
                         currentUserType = user.type;
 
-                        // Handle Avatar selection gracefully
+                        //gets the avatar type from the user and sets it
                         if (user.avatarType != null) {
                             selectedAvatar = user.avatarType;
                         }
+                        //update the avatar UI based on the user's choice
                         updateAvatarUI();
 
-                        // Checks if UI should show and populate birth date
+                        /* Checks if UI should show and populate birth date
+                        * If the user is youth, show the birth date input and hide the business code input
+                        * else, show the business code input and hide the birth date input */
                         if (User.TYPE_YOUTH.equals(currentUserType)) {
                             layoutEditBirthDate.setVisibility(View.VISIBLE);
                             if (user.birthDate != null) {
@@ -207,59 +236,71 @@ public class EditProfileFragment extends Fragment {
         });
     }
 
-    //gets the new input data and saves it to the database
+    /*This method saves the user's changes to the database*/
     private void saveProfileChanges() {
+        //gets full name and phone from the input fields
         String newName = etFullName.getText().toString().trim();
         String newPhone = etPhone.getText().toString().trim();
 
+        //Checks If the fields are empty, If so, show a toast
         if (TextUtils.isEmpty(newName) || TextUtils.isEmpty(newPhone)) {
-            Toast.makeText(getContext(), "אנא מלא את כל השדות", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Please fill in all fields.", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Validate using InputValidator
+        /*Checks if the phone number is valid
+        using the InputValidator class, If not, show a toast */
         if (!InputValidator.isValidPhone(newPhone)) {
-            Toast.makeText(getContext(), "מספר הטלפון לא חוקי", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Invalid phone number", Toast.LENGTH_SHORT).show();
             return;
         }
 
         //updates the user's data trough a HashMap
         //using String as the key and "Object" as the new value
-        Map<String, Object> updates = new HashMap<>();
+        Map<String, Object> updates = new HashMap<>(); //create a hashmap to hold the updates
+        //add the updates (fullName, phone, avatarType) to the hashmap
         updates.put("fullName", newName);
         updates.put("phone", newPhone);
         updates.put("avatarType", selectedAvatar);
 
-        // If user is Youth, update birthDate
+        //If user is Youth, update birthDate
         if (User.TYPE_YOUTH.equals(currentUserType)) {
             String newBirthDate = etBirthDate.getText().toString().trim();
+            //Checks If the birth date is empty, If so, show a toast
             if (TextUtils.isEmpty(newBirthDate)) {
-                Toast.makeText(getContext(), "אנא בחר תאריך לידה", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Please select a date of birth", Toast.LENGTH_SHORT).show();
                 return;
             }
+            //add the updates (birthDate) to the hashmap
             updates.put("birthDate", newBirthDate);
 
         } else if (User.TYPE_BUSINESS.equals(currentUserType)) {
             String newBusinessCode = etBusinessCode.getText().toString().trim();
+            //Checks If the business code is empty, If so, show a toast
             if (TextUtils.isEmpty(newBusinessCode)) {
-                Toast.makeText(getContext(), "אנא הזן קוד עסק", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Please enter a business code.", Toast.LENGTH_SHORT).show();
                 return;
             }
+            //add the updates (businessCode) to the hashmap
             updates.put("businessCode", newBusinessCode);
         }
 
-        /*update using updateChildern to change only
-        what's in the HashMap and avoids memory leaks*/
+        /*updates the user's data in the database using
+        updateChildern to change only what's in the HashMap
+        and avoids memory leaks*/
         mDatabase.child("users").child(userId).updateChildren(updates).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
+            //Callback when data is updated
             public void onComplete(@NonNull Task<Void> task) {
                 if (!isAdded() || getActivity() == null) return;
 
+                //If task is successful, show a toast and replace the fragment
                 if (task.isSuccessful()) {
-                    Toast.makeText(getContext(), "הפרופיל עודכן בהצלחה", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Profile updated successfully", Toast.LENGTH_SHORT).show();
                     getActivity().getSupportFragmentManager().popBackStack();
                 } else {
-                    Toast.makeText(getContext(), "עדכון נכשל", Toast.LENGTH_SHORT).show();
+                    //show a toast mentioning there's an error
+                    Toast.makeText(getContext(), "Error updating profile", Toast.LENGTH_SHORT).show();
                 }
             }
         });
