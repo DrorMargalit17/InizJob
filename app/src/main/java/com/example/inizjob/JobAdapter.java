@@ -12,7 +12,6 @@ import java.util.List;
 /*
  * Class: JobAdapter
  * Purpose: Handles displaying jobs in the main list.
- * Update: Conditionally hides the favorite star if the user is a Business.
  */
 public class JobAdapter extends RecyclerView.Adapter<JobAdapter.JobViewHolder> {
 

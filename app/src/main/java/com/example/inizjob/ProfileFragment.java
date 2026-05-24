@@ -28,12 +28,8 @@ import com.google.firebase.database.FirebaseDatabase;
 /*
  * Class: ProfileFragment
  * Purpose: Manages the user profile screen, displaying user info and a dynamic settings menu.
- * * Update: Replaced "CV" logic with hiding the menu row for business owners entirely.
- * * Update: Added Avatar logic mapping to tint colors for visual feedback.
- * * Update: Added loading indicator to improve UX and prevent pop-in.
  */
 public class ProfileFragment extends Fragment {
-
 
     private ImageView imgProfileAvatar; // UI element for profile avatar image - changes color based on avatar type
     private TextView tvProfileName, tvProfileEmail, tvProfileTypeBadge; // text for displaying user info

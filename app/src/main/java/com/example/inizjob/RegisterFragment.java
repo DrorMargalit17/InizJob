@@ -31,7 +31,7 @@ import com.google.android.gms.tasks.Task;
 import java.util.Calendar;
 
 /*
- * class: registerfragment
+ * class: RegisterFragment
  * purpose: handles new user registration.
  */
 public class RegisterFragment extends Fragment {

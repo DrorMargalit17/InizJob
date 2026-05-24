@@ -28,8 +28,6 @@ import com.google.firebase.database.FirebaseDatabase;
 /*
  * Class: AddJobFragment
  * Purpose: Strict implementation of a 3-step job posting wizard.
- * Logic: Fully synchronized with Job model, standard UI, and no lambda expressions.
- * Includes a back navigation button for improved user experience.
  */
 public class AddJobFragment extends Fragment {
 

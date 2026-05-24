@@ -27,12 +27,7 @@ import com.google.firebase.database.FirebaseDatabase;
 
 /*
  * Class: AddCvFragment
- * * Methods and Actions:
- * 1. onViewCreated - Connects UI and sets up listeners.
- * 2. setupDraftLogic - Monitors text changes and saves drafts to Firebase.
- * 3. loadDraftIfAvailable - Loads unfinished work from the "cv_drafts" node.
- * 4. prepareAiRequest - Gathers all inputs and calls GeminiAiManager.
- * 5. handleBack - Safely returns to the previous screen or previous page.
+ * Purpose: Allows the user to create a new CV or edit an existing one.
  */
 public class AddCvFragment extends Fragment {
 

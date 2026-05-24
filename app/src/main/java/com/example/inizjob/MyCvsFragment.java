@@ -25,7 +25,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
+/*
  * Class: MyCvsFragment
  * Purpose: Retrieves and displays a list of CVs specifically created by the currently logged-in youth user.
  */
